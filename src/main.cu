@@ -2,6 +2,8 @@
 #include <thrust/device_vector.h>
 
 #include "Module.h"
+#include "Material.h"
+#include "Scene.h"
 
 #include <iostream>
 
@@ -15,6 +17,13 @@ int main(void) {
     b.Record(0, 1); b.Record(1, 3); b.Record(2, 2);
     std::cout << "Reciever :\n";
     b.print();
+
+    /// Scene
+    dim3 d(10, 10, 10);
+    Scene s{d};
+    Material m{1000, 1500, 100};
+    s.AddMaterial(m);
+    s.PrintMaterials();
 
     return 0;
 }
