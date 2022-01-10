@@ -32,7 +32,7 @@ set(MAIN_SOURCES src/main.cpp)
 set(MAIN_EXE_NAME Nautilus)
 
 ## 1. Compile...
-add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp src/Material.cpp)
+add_executable(nautilus src/main.cu src/Module.cu src/Scene.cu src/Material.cu)
 
 ## 2. Link...
 # target_link_libraries(${MAIN_EXE_NAME} ${NVTX_LIBRARY} ${CUDA_CUDART_LIBRARY})

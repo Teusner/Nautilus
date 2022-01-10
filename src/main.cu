@@ -1,5 +1,7 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <thrust/device_ptr.h>
+
 
 #include "Module.h"
 #include "Material.h"
@@ -21,9 +23,16 @@ int main(void) {
     /// Scene
     dim3 d(10, 10, 10);
     Scene s{d};
-    Material m{1000, 1500, 100};
-    s.AddMaterial(m);
-    s.PrintMaterials();
+
+    Material* m;
+    cudaMalloc(&m, sizeof(Material *));
+    NewMaterial<<<1, 1>>>(1000, 1500, 100, m);
+    cudaThreadSynchronize();
+
+    PrintMaterial<<<1, 1>>>(m);
+
+    // s.AddMaterial(m);
+    // s.PrintMaterials();
 
     return 0;
 }

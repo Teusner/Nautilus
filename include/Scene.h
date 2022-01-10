@@ -2,6 +2,8 @@
 
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <thrust/device_ptr.h>
+
 
 #include "Material.h"
 
@@ -9,7 +11,7 @@ class Scene {
     public:
         __host__ Scene(dim3 d) : m_d(d) {};
 
-        __host__ void AddMaterial(Material m);
+        __host__ void AddMaterial(thrust::device_ptr<Material> m);
         __host__ void PrintMaterials();
 
     private:
@@ -21,6 +23,6 @@ class Scene {
         float dy;
         float dz;
 
-        thrust::host_vector<Material> m_materials;
+        thrust::device_vector<thrust::device_ptr<Material>> d_materials;
         thrust::host_vector<thrust::device_ptr<Material>> m_scene;
 };
