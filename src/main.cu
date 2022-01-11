@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Scene.h"
 
+
 #include <iostream>
 
 int main(void) {
@@ -23,13 +24,11 @@ int main(void) {
     /// Scene
     dim3 d(10, 10, 10);
     Scene s{d};
-
-    Material* m;
-    cudaMalloc(&m, sizeof(Material *));
-    NewMaterial<<<1, 1>>>(1000, 1500, 100, m);
-    cudaThreadSynchronize();
-
-    PrintMaterial<<<1, 1>>>(m);
+    
+    /// Material
+    Material m(1000, 1500, 100);
+    m.update_device();
+    std::cout << m << std::endl;
 
     // s.AddMaterial(m);
     // s.PrintMaterials();
