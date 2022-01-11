@@ -7,6 +7,7 @@
 
 class Material {
     public:
+        __host__ Material() : Material(1000, 1500, 100) {};
         __host__ Material(float rho, float cp, float Qp);
         __host__ ~Material();
 

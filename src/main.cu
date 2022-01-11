@@ -26,9 +26,13 @@ int main(void) {
     Scene s{d};
     
     /// Material
-    Material m(1000, 1500, 100);
-    m.update_device();
+    Material m(800, 300, 1);
     std::cout << m << std::endl;
+    m.update_device();
+
+    /// Scene vector
+    thrust::device_vector<Material *> M(d.x * d.y * d.z, m.device_ptr());
+
 
     // s.AddMaterial(m);
     // s.PrintMaterials();
