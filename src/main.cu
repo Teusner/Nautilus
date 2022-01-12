@@ -31,8 +31,8 @@ int main(void) {
     m.update_device();
 
     /// Scene vector
-    thrust::device_vector<Material *> M(d.x * d.y * d.z, m.device_ptr());
-
+    thrust::host_vector<Material *> M(5, m.host_ptr());
+    thrust::copy(M.begin(), M.end(), std::ostream_iterator<Material *>(std::cout, "\n"));
 
     // s.AddMaterial(m);
     // s.PrintMaterials();

@@ -31,14 +31,21 @@
     } while(0)                                                             \
 
 
-std::ostream &operator<<(std::ostream &os, const Material& m) {
+std::ostream &operator<<(std::ostream &os, const Material &m) {
     return os << "{rho: " << m.Rho() << ", P: ["
                         << m.Cp() << ", " << m.Qp() << "], S: ["
                         << m.Cs() << ", " << m.Qs() << "]}";
 }
 
+std::ostream &operator<<(std::ostream &os, const Material *m) {
+    return os << "{rho: " << m->Rho() << ", P: ["
+                        << m->Cp() << ", " << m->Qp() << "], S: ["
+                        << m->Cs() << ", " << m->Qs() << "]}";
+}
+
 Material::Material(float rho, float cp, float Qp) : m_rho(rho), m_cp(cp), m_Qp(Qp) {
     CUDA_CHECK( cudaMalloc(&this->m_device_ptr, sizeof(Material)) );
+    this->update_device();
 }
 
 Material::~Material() {

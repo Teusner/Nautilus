@@ -34,9 +34,5 @@ class Material {
         Material* m_device_ptr;
 };
 
-
-std::ostream &operator<<(std::ostream &os, const Material& m);
-
-__global__ void NewMaterial(float rho, float cp, float qp, Material* m);
-
-__global__ void PrintMaterial(Material* m);
+std::ostream &operator<<(std::ostream &os, const Material &m);
+std::ostream &operator<<(std::ostream &os, const Material *m);
