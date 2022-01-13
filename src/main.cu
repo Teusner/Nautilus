@@ -6,6 +6,7 @@
 #include "Module.h"
 #include "Material.h"
 #include "Scene.h"
+#include "Simulation.h"
 
 
 #include <iostream>
@@ -36,6 +37,13 @@ int main(void) {
 
     // s.AddMaterial(m);
     // s.PrintMaterials();
+
+    /// Events
+    Event e1(2);
+    Event e2(1);
+
+    std::cout << e1.i() << " " << e2.i() << "\n";
+    std::cout << (e2 < e1) << "\n";
 
     return 0;
 }
