@@ -5,7 +5,7 @@
 
 
 class Solver {
-    public: __host__ Solver() {};
+    public: Solver() {};
 
     public : std::priority_queue<Event, std::vector<Event>, std::greater<Event>> Events;
 };
