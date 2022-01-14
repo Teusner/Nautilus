@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(Nautilus LANGUAGES CUDA CXX)
 
+set(CMAKE_CXX_STANDARD 11)
+
 ## Required software
 find_package(CUDA REQUIRED)
 
@@ -32,7 +34,11 @@ set(MAIN_SOURCES src/main.cpp)
 set(MAIN_EXE_NAME Nautilus)
 
 ## 1. Compile...
-add_executable(nautilus src/main.cu src/Module.cu src/Scene.cu src/Material.cu src/Simulation.cu)
+add_executable(nautilus src/main.cu src/Module.cu src/Scene.cu src/Material.cu src/Event.cu)
+
+## Tests
+enable_testing()
+add_subdirectory(test)
 
 ## 2. Link...
 # target_link_libraries(${MAIN_EXE_NAME} ${NVTX_LIBRARY} ${CUDA_CUDART_LIBRARY})

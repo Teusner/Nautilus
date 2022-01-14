@@ -1,7 +1,7 @@
 #pragma once
 
 #include <queue>
-#include "Simulation.h"
+#include "Event.h"
 
 
 class Solver {
