@@ -1,5 +1,4 @@
 #pragma once
-
 #include <functional>
 
 
@@ -20,4 +19,7 @@ class Event {
         std::function<void(void)> m_f = nullptr;
 };
 
-bool operator< (const Event &e1, const Event &e2);
+bool operator<(const Event &lhs, const Event &rhs);
+bool operator>(const Event &lhs, const Event &rhs);
+bool operator<=(const Event &lhs, const Event &rhs);
+bool operator>=(const Event &lhs, const Event &rhs);

@@ -1,5 +1,17 @@
 #include "Simulation.h"
 
-bool operator< (const Event &e1, const Event &e2) {
-    return e1.i() < e2.i();
+bool operator<(const Event &lhs, const Event &rhs) {
+    return lhs.i() < rhs.i();
+}
+
+bool operator>(const Event &lhs, const Event &rhs) {
+    return lhs.i() > rhs.i();
+}
+
+bool operator<=(const Event &lhs, const Event &rhs) {
+    return lhs.i() <= rhs.i();
+}
+
+bool operator>=(const Event &lhs, const Event &rhs) {
+    return lhs.i() >= rhs.i();
 }

@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Scene.h"
 #include "Simulation.h"
+#include "Solver.h"
 
 
 #include <iostream>
@@ -44,6 +45,18 @@ int main(void) {
 
     std::cout << e1.i() << " " << e2.i() << "\n";
     std::cout << (e2 < e1) << "\n";
+
+    /// Solver
+    std::cout << "Adding events to the Solver" << std::endl;
+    Solver solve;
+    solve.Events.push(e1);
+    solve.Events.push(e2);
+
+    while (!solve.Events.empty()){
+        Event e = solve.Events.top();
+        std::cout << e.i() << std::endl;
+        solve.Events.pop();
+    }
 
     return 0;
 }
