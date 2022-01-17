@@ -28,7 +28,6 @@ __global__ void Ux(float* Ux, float* Px, float* Pxy, float* Pxz, float* rho, dim
         float dPxy = - Pxy[i + (j+1)*d.x + k*d.y] + 27 * (Pxy[i + j*d.x + k*d.y] - Pxy[i + (j-1)*d.x + k * d.y]) + Pxy[i + (j-2)*d.x + k *d.y];
         float dPxz = - Pxz[i + j*d.x + (k+1)*d.y] + 27 * (Pxz[i + j*d.x + k*d.y] - Pxz[i + j*d.x + (k-1)*d.y]) + Pxz[i + j*d.x + (k-2)*d.y];
         Ux[i + j*d.x + k*d.y] += 1 / (h * rho[i + j*d.x + k*d.y]) * (dPxx + dPxy + dPxz);
-        // printf("%d, %d, %d : %f\n", i, j, k, dt / rho[i + j*d.x + k*d.y] * (dPxx + dPxy + dPxz));
     }
 }
 
