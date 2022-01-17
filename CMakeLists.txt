@@ -40,6 +40,9 @@ add_executable(nautilus src/main.cu src/Module.cu src/Scene.cu src/Material.cu s
 enable_testing()
 add_subdirectory(test)
 
+## Cuda
+add_subdirectory(cuda)
+
 ## 2. Link...
 # target_link_libraries(${MAIN_EXE_NAME} ${NVTX_LIBRARY} ${CUDA_CUDART_LIBRARY})
 
