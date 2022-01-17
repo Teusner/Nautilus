@@ -54,3 +54,27 @@ class VelocityField : public Field {
     /// Z Velocity
     public: thrust::device_vector<float> z;
 };
+
+class MemoryField : public Field {
+
+    /// Constructor
+    public: MemoryField(dim3 d);
+
+    /// X Memory
+    public: thrust::device_vector<float> x;
+
+    /// Y Memory
+    public: thrust::device_vector<float> y;
+
+    /// Z Memory
+    public: thrust::device_vector<float> z;
+
+    /// XY Memory
+    public: thrust::device_vector<float> xy;
+
+    /// YZ Memory
+    public: thrust::device_vector<float> yz;
+
+    /// XZ Memory
+    public: thrust::device_vector<float> xz;
+};
