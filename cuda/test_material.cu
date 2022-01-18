@@ -33,6 +33,20 @@ int main(int argc, char** argv) {
     cudaMemcpyToSymbol(M, temp_m, sizeof(MMaterial) * N);
     free(temp_m);
 
+    /// Copying one material on constant memory
+    MMaterial *h_m = (MMaterial*) malloc( sizeof(MMaterial) * N );
+    cudaMemcpyFromSymbol(h_m, M, sizeof(MMaterial)*N);
+
+    unsigned int index = 2;
+    h_m[index].rho = 70;
+    h_m[index].cp = 70;
+    h_m[index].Qp = 70;
+    h_m[index].cs = 70;
+    h_m[index].Qs = 70;
+    h_m[index].init();
+
+    cudaMemcpyToSymbol(M, h_m, sizeof(MMaterial)*N);
+
     Mat<<<1, 1>>>();
     cudaDeviceSynchronize();
 
