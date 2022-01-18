@@ -47,6 +47,8 @@ int main(int argc, char** argv) {
 
     cudaMemcpyToSymbol(M, h_m, sizeof(MMaterial)*N);
 
+    free(h_m);
+
     Mat<<<1, 1>>>();
     cudaDeviceSynchronize();
 

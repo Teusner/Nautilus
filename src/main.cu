@@ -29,11 +29,9 @@ int main(void) {
     
     /// Material
     Material m(800, 300, 1);
-    std::cout << m << std::endl;
-    m.update_device();
 
     /// Scene vector
-    thrust::host_vector<Material *> M(5, m.host_ptr());
+    thrust::host_vector<Material *> M(5, &m);
     thrust::copy(M.begin(), M.end(), std::ostream_iterator<Material *>(std::cout, "\n"));
 
     // s.AddMaterial(m);

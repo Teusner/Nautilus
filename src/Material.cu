@@ -30,6 +30,8 @@
         }                                                                  \
     } while(0)                                                             \
 
+#define N 10
+
 
 std::ostream &operator<<(std::ostream &os, const Material &m) {
     return os << "{rho: " << m.Rho() << ", P: ["
@@ -44,18 +46,22 @@ std::ostream &operator<<(std::ostream &os, const Material *m) {
 }
 
 Material::Material(float rho, float cp, float Qp) : m_rho(rho), m_cp(cp), m_Qp(Qp) {
-    CUDA_CHECK( cudaMalloc(&this->m_device_ptr, sizeof(Material)) );
-    this->update_device();
 }
 
 Material::~Material() {
-    cudaFree(this->m_device_ptr);
 }
 
-void Material::update_host() {
-    CUDA_CHECK( cudaMemcpy(this->host_ptr(), this->device_ptr(), sizeof(Material), cudaMemcpyDeviceToHost) );
-}
+void Material::CopyToConstant(const void* symbol, unsigned int index) const {
+    // Copying one material on constant memory
+    DeviceMaterial *temp_h_m = (DeviceMaterial*) malloc(sizeof(DeviceMaterial) * N);
+    cudaMemcpyFromSymbol(temp_h_m, symbol, sizeof(DeviceMaterial)*N);
 
-void Material::update_device() {
-    CUDA_CHECK( cudaMemcpy(this->device_ptr(), this->host_ptr(), sizeof(Material), cudaMemcpyHostToDevice) );
+    // Filling the i-th DeviceMaterial
+    temp_h_m[index].inv_rho = 1 / m_rho;
+    temp_h_m[index].eta_tau_epsilon_p = 1;
+    temp_h_m[index].mu_tau_epsilon_s = 1;
+
+    cudaMemcpyToSymbol(symbol, temp_h_m, sizeof(DeviceMaterial)*N);
+
+    free(temp_h_m);
 }
