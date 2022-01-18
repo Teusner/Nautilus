@@ -6,21 +6,33 @@
 
 class Module {
     public:
-        __host__ Module(dim3 d) : m_d(d) {};
-        __host__ Module(std::size_t i, std::size_t j, std::size_t k) : m_d(i, j, k) {};
-        __host__ dim3 Dim() const {return m_d;};
+        __host__ Module(dim3 d) : m_x(d.x), m_y(d.y), m_z(d.z) {};
+        __host__ Module(unsigned int i, unsigned int j, unsigned int k) : m_x(i), m_y(j), m_z(k) {};
         __host__ void print();
 
+        __host__ unsigned int X() const { return m_x; };
+        __host__ unsigned int Y() const { return m_y; };
+        __host__ unsigned int Z() const { return m_z; };
+
     protected:
-        dim3 m_d;
+        /// X Position
+        unsigned int m_x;
+
+        /// Y Position
+        unsigned int m_y;
+
+        /// Z Position
+        unsigned int m_z;
+
         thrust::host_vector<float> m_t;
         thrust::host_vector<float> m_s;
 };
 
 class Emitter : public Module {
     public:
+        __host__ Emitter() : Module(0, 0, 0), m_f([](float t){return 0;}) {};
         __host__ Emitter(dim3 d, std::function<float(float)> f) : Module(d), m_f(f) {};
-        __host__ Emitter(std::size_t i, std::size_t j, std::size_t k, std::function<float(float)> f) : Module(i, j, k), m_f(f) {};
+        __host__ Emitter(unsigned int i, unsigned int j, unsigned int k, std::function<float(float)> f) : Module(i, j, k), m_f(f) {};
         __host__ float operator()(float x);
 
     private:

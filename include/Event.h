@@ -4,12 +4,12 @@
 
 class Event {
     public:
-        __host__ Event() : Event(0) {};
-        __host__ Event(unsigned int i) : m_i(i) {};
-        __host__ Event(unsigned int i, std::function<void(void)> f) : m_i(i), m_f(f) {};
+        Event() : Event(0) {};
+        Event(unsigned int i) : m_i(i) {};
+        Event(unsigned int i, std::function<void(void)> f) : m_i(i), m_f(f) {};
 
-        __host__ unsigned int i() const {return m_i;};
-        __host__ std::function<void(void)> Callback() const {return m_f;};
+        unsigned int i() const { return m_i; };
+        std::function<void(void)> Callback() const { return m_f; };
 
     private:
         /// Time

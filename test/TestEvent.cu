@@ -2,25 +2,25 @@
 #include "Event.h"
 
 
-TEST(EventTest, Lower) {
+TEST(Event, Lower) {
     Event e0(0);
     Event e1(1);
     EXPECT_TRUE(e0 < e1);
 }
 
-TEST(EventTest, Greater) {
+TEST(Event, Greater) {
     Event e0(0);
     Event e1(1);
     EXPECT_TRUE(e1 > e0);
 }
 
-TEST(EventTest, LowerEqual) {
+TEST(Event, LowerEqual) {
     Event e0(0);
     Event e1(0);
     EXPECT_TRUE(e0 <= e1);
 }
 
-TEST(EventTest, GreaterEqual) {
+TEST(Event, GreaterEqual) {
     Event e0(0);
     Event e1(0);
     EXPECT_TRUE(e1 >= e0);
