@@ -1,0 +1,1 @@
+add_executable(test_kernel kernels.cu ../../src/Field.cu)

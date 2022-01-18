@@ -1,7 +1,9 @@
 #pragma once
 
-#include <queue>
 #include "Event.h"
+
+#include <queue>
+#include <vector>
 
 
 class Solver {
@@ -34,5 +36,8 @@ class Solver {
     
     /// Time Increment
     private: unsigned int m_i;
-};
 
+    /// Material Pointers Vector
+    /// Vector holding pointer to Materials
+    private: std::vector<Material*> Materials;
+};

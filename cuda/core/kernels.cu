@@ -1,9 +1,9 @@
+#include "kernels.cuh"
 #include "Field.h"
 
 #include <ostream>
 #include <thrust/device_vector.h>
 
-#include <thrust/random.h>
 #include <thrust/transform.h>
 #include <thrust/iterator/counting_iterator.h>
 
@@ -32,7 +32,7 @@ __global__ void Ux(float* Ux, float* Px, float* Pxy, float* Pxz, float* rho) {
 }
 
 template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uy(float* Uy, float* Py, float* Pxy, float* Pyz, float* rho, dim3 d) {
+__global__ void Uy(float* Uy, float* Py, float* Pxy, float* Pyz, float* rho) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -46,7 +46,7 @@ __global__ void Uy(float* Uy, float* Py, float* Pxy, float* Pyz, float* rho, dim
 }
 
 template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uz(float* Uz, float* Pz, float* Pyz, float* Pxz, float* rho, dim3 d) {
+__global__ void Uz(float* Uz, float* Pz, float* Pyz, float* Pxz, float* rho) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -69,27 +69,40 @@ __global__ void Rxx(float* Rx, float* Ux, float* Uy, float* Uz) {
         float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
         float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
         float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
-        // A modifier avec Material dans la constants memory ; calcul de teau_gamma_p et de tau_gamma_s dans init()
+        // A modifier avec Material dans la constants memory ; calcul de tau_gamma_p et de tau_gamma_s dans init()
         // Rx[i + j*x + k*y] += 1 / (h * rho[i + j*x + k*y]) * (dPxx + dPxy + dPxz);
     }
 }
 
+template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
+__global__ void Ryy(float* Ry, float* Ux, float* Uy, float* Uz) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
-struct prg {
-    float a, b;
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
+        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
+        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+        // A modifier avec Material dans la constants memory ; calcul de tau_gamma_p et de tau_gamma_s dans init()
+        // Ry[i + j*x + k*y] += 1 / (h * rho[i + j*x + k*y]) * (dPxx + dPxy + dPxz);
+    }
+}
 
-    __host__ __device__
-    prg(float _a=0.f, float _b=1.f) : a(_a), b(_b) {};
+template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rzz(float* Rz, float* Ux, float* Uy, float* Uz) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
-    __host__ __device__
-        float operator()(const unsigned int n) const {
-            thrust::default_random_engine rng;
-            thrust::uniform_real_distribution<float> dist(a, b);
-            rng.discard(n);
-
-            return dist(rng);
-        }
-};
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
+        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
+        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+        // A modifier avec Material dans la constants memory ; calcul de tau_gamma_p et de tau_gamma_s dans init()
+        // Rz[i + j*x + k*y] += 1 / (h * rho[i + j*x + k*y]) * (dPxx + dPxy + dPxz);
+    }
+}
 
 
 int main(int argc, char** argv) {
