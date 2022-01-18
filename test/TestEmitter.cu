@@ -3,8 +3,6 @@
 #include <gtest/gtest.h>
 #include <functional>
 
-// __constant__ Emitter D_Emitter;
-
 
 TEST(Emitter, Instanciation) {
     unsigned int i = 1;
@@ -12,8 +10,10 @@ TEST(Emitter, Instanciation) {
     unsigned int k = 12;
     std::function<float(float)> f = [](float t) { return t; };
 
+    // Emitter Object
     Emitter e(i, j, k, f);
 
+    // Tests
     EXPECT_EQ(e.X(), i);
     EXPECT_EQ(e.Y(), j);
     EXPECT_EQ(e.Z(), k);
@@ -38,6 +38,7 @@ TEST(Emitter, DeviceAllocation) {
     Emitter *h_e = (Emitter *)malloc(sizeof(Emitter));
     cudaMemcpy(h_e, d_e, sizeof(Emitter), cudaMemcpyDeviceToHost);
 
+    // Tests
     EXPECT_EQ(h_e->X(), i);
     EXPECT_EQ(h_e->Y(), j);
     EXPECT_EQ(h_e->Z(), k);
