@@ -4,10 +4,12 @@
 
 
 #include "Module.h"
-#include "Material.h"
+#include "core/Material.cuh"
 #include "Scene.h"
 #include "Event.h"
 #include "Solver.h"
+
+#include "Scene.h"
 
 
 #include <iostream>
@@ -55,6 +57,11 @@ int main(void) {
         std::cout << e.i() << std::endl;
         solve.Events.pop();
     }
+
+    /// Scene
+    dim3 Size(10, 10, 10);
+    Scene sc(Size);
+    sc.PrintMaterials();
 
     return 0;
 }

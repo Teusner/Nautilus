@@ -10,7 +10,7 @@ find_package(CUDA REQUIRED)
 # set(CMAKE_CXX_COMPILER /usr/bin/g++-7)
 
 ## Sources and headers
-include_directories(${CUDA_INCLUDE_DIRS} include)
+include_directories(${CUDA_INCLUDE_DIRS} include cuda)
 
 ## Split the source into a GPU part (compiled by nvcc) and a
 ## CPU part (compiled by e.g. gcc).
@@ -34,7 +34,7 @@ set(MAIN_SOURCES src/main.cpp)
 set(MAIN_EXE_NAME Nautilus)
 
 ## 1. Compile...
-add_executable(nautilus src/main.cu src/Module.cu src/Scene.cu src/Material.cu src/Event.cpp)
+add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp cuda/core/Material.cu src/Event.cpp)
 
 ## Tests
 enable_testing()

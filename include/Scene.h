@@ -1,18 +1,18 @@
 #pragma once
+#include <vector>
 
-#include <thrust/host_vector.h>
-#include <thrust/device_vector.h>
-#include <thrust/device_ptr.h>
+#include "core/Material.cuh"
 
-
-#include "Material.h"
 
 class Scene {
     public:
-        __host__ Scene(dim3 d) : m_d(d) {};
+        Scene(dim3 d) : m_d(d), m_materials(1, Material()) {};
 
-        __host__ void AddMaterial(thrust::device_ptr<Material> m);
-        __host__ void PrintMaterials();
+        /// Add a material to the Scene
+        void AddMaterial(Material m);
+
+        /// Print material in the scene
+        void PrintMaterials();
 
     private:
         /// Scene dimension
@@ -23,6 +23,9 @@ class Scene {
         float dy;
         float dz;
 
-        thrust::device_vector<thrust::device_ptr<Material>> d_materials;
-        thrust::host_vector<thrust::device_ptr<Material>> m_scene;
+        /// Vector of Material
+        std::vector<Material> m_materials;
+
+        /// Scene description vector
+        std::vector<float> m_M;
 };

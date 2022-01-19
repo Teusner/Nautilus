@@ -14,8 +14,8 @@ struct DeviceMaterial {
 class Material {
     public:
         __host__ Material() : Material(1000, 1500, 100) {};
-        __host__ Material(float rho, float cp, float Qp);
-        __host__ ~Material();
+        __host__ Material(float rho, float cp, float Qp) : m_rho(rho), m_cp(cp), m_Qp(Qp) {};
+        __host__ ~Material() = default;
 
         __host__ float Rho() const { return m_rho; };
         __host__ float Cp() const { return m_cp; };
