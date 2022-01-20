@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-
 #include "core/Material.cuh"
 
 
@@ -12,7 +11,10 @@ class Scene {
         void AddMaterial(Material m);
 
         /// Print material in the scene
-        void PrintMaterials();
+        void PrintMaterials() const;
+
+        /// Copy materials to constant memory
+        void AllocateMaterials(const void* symbol) const;
 
     private:
         /// Scene dimension

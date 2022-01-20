@@ -25,6 +25,8 @@ class Material {
 
         __host__ void CopyToConstant(const void* symbol, unsigned int index) const;
 
+        __host__ DeviceMaterial GetDeviceMaterial() const;
+
     private:
         float m_rho;
         float m_cp;

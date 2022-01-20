@@ -34,7 +34,7 @@ set(MAIN_SOURCES src/main.cpp)
 set(MAIN_EXE_NAME Nautilus)
 
 ## 1. Compile...
-add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp cuda/core/Material.cu src/Event.cpp)
+add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp cuda/core/Material.cu src/Event.cpp cuda/utils/constant_memory.cu)
 
 ## Tests
 enable_testing()

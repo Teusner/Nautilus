@@ -23,6 +23,10 @@ void Material::CopyToConstant(const void* symbol, unsigned int index) const {
     free(temp_h_m);
 }
 
+DeviceMaterial Material::GetDeviceMaterial() const {
+    return DeviceMaterial{1 / m_rho, 1, 1};
+}
+
 std::ostream &operator<<(std::ostream &os, const Material &m) {
     return os << "{rho: " << m.Rho() << ", P: ["
                         << m.Cp() << ", " << m.Qp() << "], S: ["
