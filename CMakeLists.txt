@@ -43,6 +43,9 @@ add_subdirectory(test)
 ## Cuda
 add_subdirectory(cuda)
 
+## Example
+add_subdirectory(example)
+
 ## 2. Link...
 # target_link_libraries(${MAIN_EXE_NAME} ${NVTX_LIBRARY} ${CUDA_CUDART_LIBRARY})
 
