@@ -4,13 +4,11 @@
 
 #include <iostream>
 
-#define N 3
-__constant__ DeviceMaterial M[N];
 
 int main(void) {
-    const unsigned int x = 10;
-    const unsigned int y = 10;
-    const unsigned int z = 10;
+    constexpr unsigned int x = 100;
+    constexpr unsigned int y = 100;
+    constexpr unsigned int z = 100;
     const dim3 d(x, y, z);
     Scene s(d, 1, 1, 1);
 
@@ -22,6 +20,18 @@ int main(void) {
 
     Solver solver;
     solver.Step<x, y, z>(s);
+
+    std::cout << "First Iteration\n";
+    std::cout << "P  : ";
+    thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nPxy : ";
+    thrust::copy(s.P.xy.begin() + 1000, s.P.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nUx  : ";
+    thrust::copy(s.U.x.begin() + 1000, s.U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nRx : ";
+    thrust::copy(s.R.x.begin() + 1000, s.R.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nRxy : ";
+    thrust::copy(s.R.xy.begin() + 1000, s.R.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     
     return 0;
 }
