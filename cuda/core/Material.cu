@@ -15,8 +15,8 @@ void Material::CopyToConstant(const void* symbol, unsigned int index) const {
 
     // Filling the i-th DeviceMaterial
     temp_h_m[index].inv_rho = 1 / m_rho;
-    temp_h_m[index].eta_tau_epsilon_p = 1;
-    temp_h_m[index].mu_tau_epsilon_s = 1;
+    temp_h_m[index].eta_tau_gamma_p = 1.2 - 1;
+    temp_h_m[index].mu_tau_gamma_s = 1.2 - 1;
 
     cudaMemcpyToSymbol(symbol, temp_h_m, sizeof(DeviceMaterial)*N);
 

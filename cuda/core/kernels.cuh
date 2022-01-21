@@ -3,23 +3,23 @@
 #include <thrust/random.h>
 
 
-template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Ux(float* Ux, float* Px, float* Pxy, float* Pxz, float* rho);
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Ux(float dt, float* Ux, float* Px, float* Pxy, float* Pxz, float* rho);
 
-template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uy(float* Uy, float* Py, float* Pxy, float* Pyz, float* rho);
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Uy(float dt, float* Uy, float* Py, float* Pxy, float* Pyz, float* rho);
 
-template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uz(float* Uz, float* Pz, float* Pyz, float* Pxz, float* rho);
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Uz(float dt, float* Uz, float* Pz, float* Pyz, float* Pxz, float* rho);
 
-template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Rxx(float* Rx, float* Ux, float* Uy, float* Uz);
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rxx(float dt, float* Rx, float* Ux, float* Uy, float* Uz);
 
-template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Ryy(float* Ry, float* Ux, float* Uy, float* Uz);
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Ryy(float dt, float* Ry, float* Ux, float* Uy, float* Uz);
 
-template<unsigned int h, unsigned int x, unsigned int y, unsigned int z>
-__global__ void Rzz(float* Rz, float* Ux, float* Uy, float* Uz);
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rzz(float dt, float* Rz, float* Ux, float* Uy, float* Uz);
 
 struct prg {
     float a, b;

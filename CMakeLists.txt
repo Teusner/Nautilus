@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Nautilus LANGUAGES CUDA CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 ## Required software
 find_package(CUDA REQUIRED)
@@ -34,7 +34,7 @@ set(MAIN_SOURCES src/main.cpp)
 set(MAIN_EXE_NAME Nautilus)
 
 ## 1. Compile...
-add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp cuda/core/Material.cu src/Event.cpp cuda/utils/constant_memory.cu)
+# add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp cuda/core/Material.cu src/Event.cpp cuda/utils/constant_memory.cu cuda/core/Field.cu)
 
 ## Tests
 enable_testing()

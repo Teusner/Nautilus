@@ -6,8 +6,8 @@
 
 struct DeviceMaterial {
     float inv_rho;
-    float eta_tau_epsilon_p;
-    float mu_tau_epsilon_s;
+    float eta_tau_gamma_p;
+    float mu_tau_gamma_s;
 };
 
 

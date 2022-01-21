@@ -1,1 +1,1 @@
-add_executable(example main.cpp ../src/Scene.cpp ../cuda/core/Material.cu ../cuda/utils/constant_memory.cu)
+add_executable(example main.cpp ../src/Scene.cpp ../cuda/core/Material.cu ../cuda/utils/constant_memory.cu ../cuda/core/Field.cu)

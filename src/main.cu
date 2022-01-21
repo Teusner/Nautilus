@@ -46,9 +46,14 @@ int main(void) {
     std::cout << e1.i() << " " << e2.i() << "\n";
     std::cout << (e2 < e1) << "\n";
 
+    /// Scene
+    dim3 Size(10, 10, 10);
+    Scene sc(Size);
+    sc.PrintMaterials();
+
     /// Solver
     std::cout << "Adding events to the Solver" << std::endl;
-    Solver solve;
+    Solver solve(sc);
     solve.Events.push(e1);
     solve.Events.push(e2);
 
@@ -57,11 +62,6 @@ int main(void) {
         std::cout << e.i() << std::endl;
         solve.Events.pop();
     }
-
-    /// Scene
-    dim3 Size(10, 10, 10);
-    Scene sc(Size);
-    sc.PrintMaterials();
 
     return 0;
 }

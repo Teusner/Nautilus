@@ -1,4 +1,4 @@
-#include "Field.h"
+#include "Field.cuh"
 
 PressureField::PressureField(dim3 d) : Field(d) {
     unsigned int size = m_dim.x * m_dim.y * m_dim.z;

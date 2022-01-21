@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Field.h"
+#include "core/Field.cuh"
 
 
 TEST(PressureField, Dimension) {

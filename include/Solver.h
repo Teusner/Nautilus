@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Event.h"
+#include "Scene.h"
 
 #include <queue>
 #include <vector>
@@ -8,7 +9,7 @@
 
 class Solver {
     /// Default Constructor
-    public: Solver() {};
+    public: Solver(const Scene &s) : m_s(s) {};
 
     /// Priority Queue
     /// Priority queue handling Events in priority order
@@ -37,7 +38,6 @@ class Solver {
     /// Time Increment
     private: unsigned int m_i;
 
-    /// Material Pointers Vector
-    /// Vector holding pointer to Materials
-    private: std::vector<Material*> Materials;
+    /// Scene
+    private: Scene m_s;
 };
