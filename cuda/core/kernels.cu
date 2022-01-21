@@ -168,6 +168,50 @@ __global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, float* S, float 
     }
 }
 
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pxx(float dt, float* Px, float* Ux, float* Uy, float* Uz, float* Rx, float* S) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
+        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
+        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        Px[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uyy + Uzz) + Rx[i + j*x + k*y];
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pyy(float dt, float* Py, float* Ux, float* Uy, float* Uz, float* Ry, float* S) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
+        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
+        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        Py[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uzz) + Ry[i + j*x + k*y];
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pzz(float dt, float* Pz, float* Ux, float* Uy, float* Uz, float* Rz, float* S) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
+        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
+        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        Pz[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uyy) + Rz[i + j*x + k*y];
+    }
+}
 
 
 int main(int argc, char** argv) {
@@ -219,7 +263,14 @@ int main(int argc, char** argv) {
     CUDA_CHECK( cudaPeekAtLastError() );
     cudaDeviceSynchronize();
 
-    std::cout << "First Iteration\nUx : ";
+    Pxx<Size.x, Size.y, Size.z><<<GridDimension, ThreadPerBlock>>>(dt, thrust::raw_pointer_cast(&P.x[0]), thrust::raw_pointer_cast(&U.x[0]), thrust::raw_pointer_cast(&U.y[0]), thrust::raw_pointer_cast(&U.z[0]), thrust::raw_pointer_cast(&R.x[0]), thrust::raw_pointer_cast(&M_s[0]));
+    CUDA_CHECK( cudaPeekAtLastError() );
+    cudaDeviceSynchronize();
+
+    std::cout << "First Iteration\n";
+    std::cout << "P  : ";
+    thrust::copy(P.x.begin() + 1000, P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nUx  : ";
     thrust::copy(U.x.begin() + 1000, U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nRx : ";
     thrust::copy(R.x.begin() + 1000, R.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));

@@ -30,6 +30,15 @@ __global__ void Ryz(float dt, float* Ryz, float* Uy, float* Uz, float* S, float 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, float* S, float tau_sigma);
 
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pxx(float dt, float* Px, float* Ux, float* Uy, float* Uz, float* Rx, float* S);
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pyy(float dt, float* Py, float* Ux, float* Uy, float* Uz, float* Rx, float* S);
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pzz(float dt, float* Pz, float* Ux, float* Uy, float* Uz, float* Rz, float* S);
+
 struct prg {
     float a, b;
 
