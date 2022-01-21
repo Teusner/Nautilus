@@ -16,7 +16,7 @@ int main(void) {
 
     s.PrintMaterials();
 
-    std::vector<float> s_M(d.x * d.y * d.z, 0);
+    thrust::device_vector<float> s_M(d.x * d.y * d.z, 0);
     s.SetScene(s_M);
     s.AllocateMaterials(M);
 
