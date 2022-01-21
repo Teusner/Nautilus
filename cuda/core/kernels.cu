@@ -1,7 +1,7 @@
 #include "kernels.cuh"
 #include "Field.cuh"
 #include "Material.cuh"
-#include "Scene.h"
+#include "Scene.cuh"
 
 #include <ostream>
 #include <thrust/device_vector.h>
@@ -265,7 +265,7 @@ int main(int argc, char** argv) {
     MemoryField R(Size);
 
     // Scene
-    Scene scene(Size);
+    Scene scene(Size, 1, 1, 1);
     thrust::device_vector<float> M_s(Size.x * Size.y * Size.z, 0);
     // scene.SetScene(M_s);
     scene.AllocateMaterials(M);

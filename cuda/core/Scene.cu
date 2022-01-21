@@ -1,18 +1,14 @@
-#include "Scene.h"
+#include "Scene.cuh"
 #include "core/Material.cuh"
 #include "utils/constant_memory.cuh"
 
-#include <memory>
+#include <thrust/device_vector.h>
+
 #include <stdexcept>
 
-Scene::Scene(dim3 d) {
-    m_d = d;
+Scene::Scene(dim3 d, float dx, float dy, float dz) : m_d(d), m_dx(dx), m_dy(dy), m_dz(dz), P(d), U(d), R(d){
     m_materials = std::vector<Material>(1, Material());
     m_M = std::vector<float>(d.x * d.y * d.z, 0);
-
-    P = std::make_unique<PressureField>(d);
-    U = std::make_unique<VelocityField>(d);
-    R = std::make_unique<MemoryField>(d);
 }
 
 void Scene::AddMaterial(Material m) {
@@ -29,7 +25,7 @@ void Scene::AllocateMaterials(const void* symbol) const {
     CopyMaterialToSymbol(symbol, m_materials);
 }
 
-void Scene::SetScene(std::vector<float> M) {
+void Scene::SetScene(thrust::device_vector<float> M) {
     if (M.size() != m_d.x * m_d.y * m_d.z) {
         throw std::invalid_argument("Scene vector size does not match the Scene dimensions !");
     }
@@ -42,4 +38,16 @@ void Scene::SetScene(std::vector<float> M) {
     }
 
     m_M = M;
+}
+
+void Scene::TriggerNextEvent() {
+    Event e = m_events.top();
+    if (m_i < e.i())
+        throw std::invalid_argument("Scene time is prior to the time of the next Event !");
+
+    if (m_i > e.i())
+        throw std::invalid_argument("Scene time is later to the time of the next Event !");
+
+    e.Callback();
+    m_events.pop();
 }
