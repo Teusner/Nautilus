@@ -213,6 +213,47 @@ __global__ void Pzz(float dt, float* Pz, float* Ux, float* Uy, float* Uz, float*
     }
 }
 
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pxy(float dt, float* Pxy, float* Ux, float* Uy, float* Rxy, float* S) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxy = - Ux[i + (j+2)*x + k*y] + 27 * (Ux[i + (j+1)*x + k*y] - Ux[i + j*x + k*y]) + Ux[i + (j-1)*x + k*y];
+        float Uyx = - Uy[i+2 + j*x + k*y] + 27 * (Uy[i+1 + j*x + k*y] - Uy[i + j*x + k*y]) + Uy[i-1 + j*x + k*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        Pxy[i + j*x + k*y] += dt * M[material_index].mu_tau_gamma_s * (Uxy + Uyx) + Rxy[i + j*x + k*y];
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, float* S) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uyz = - Uy[i + j*x + (k+2)*y] + 27 * (Uy[i + j*x + (k+1)*y] - Uy[i + j*x + k*y]) + Uy[i + j*x + (k-1)*y];
+        float Uzy = - Uz[i + (j+2)*x + k*y] + 27 * (Uz[i + (j+1)*x + k*y] - Uz[i + j*x + k*y]) + Uz[i + (j-1)*x + k*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        Pyz[i + j*x + k*y] += dt * M[material_index].mu_tau_gamma_s * (Uyz + Uzy) + Ryz[i + j*x + k*y];
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, float* S) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxz = - Ux[i + j*x + (k+2)*y] + 27 * (Ux[i + j*x + (k+1)*y] - Ux[i + j*x + k*y]) + Ux[i + j*x + (k-1)*y];
+        float Uzx = - Uz[i+2 + j*x + k*y] + 27 * (Uz[i+1 + j*x + k*y] - Uz[i + j*x + k*y]) + Uz[i-1 + j*x + k*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        Pxz[i + j*x + k*y] += dt * M[material_index].mu_tau_gamma_s * (Uxz + Uzx) + Rxz[i + j*x + k*y];
+    }
+}
 
 int main(int argc, char** argv) {
     const float dt = 0.01;
@@ -239,6 +280,8 @@ int main(int argc, char** argv) {
     std::cout << "Initialisation\n";
     std::cout << "P  : ";
     thrust::copy(P.x.begin() + 1000, P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nPxy : ";
+    thrust::copy(P.xy.begin() + 1000, P.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nUx : ";
     thrust::copy(U.x.begin() + 1000, U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nRx : ";
@@ -267,9 +310,15 @@ int main(int argc, char** argv) {
     CUDA_CHECK( cudaPeekAtLastError() );
     cudaDeviceSynchronize();
 
+    Pxy<Size.x, Size.y, Size.z><<<GridDimension, ThreadPerBlock>>>(dt, thrust::raw_pointer_cast(&P.xy[0]), thrust::raw_pointer_cast(&U.x[0]), thrust::raw_pointer_cast(&U.y[0]), thrust::raw_pointer_cast(&R.xy[0]), thrust::raw_pointer_cast(&M_s[0]));
+    CUDA_CHECK( cudaPeekAtLastError() );
+    cudaDeviceSynchronize();
+
     std::cout << "First Iteration\n";
     std::cout << "P  : ";
     thrust::copy(P.x.begin() + 1000, P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nPxy : ";
+    thrust::copy(P.xy.begin() + 1000, P.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nUx  : ";
     thrust::copy(U.x.begin() + 1000, U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nRx : ";
