@@ -9,7 +9,7 @@
 
 class Scene {
     /// Constructor with a dimension
-    public: Scene(dim3 d, float dx, float dy, float dz);
+    public: Scene(dim3 d, float dx, float dy, float dz, float dt);
 
     /// Copy Constructor
     public: Scene(const Scene& s) : m_d(s.Dims()), m_dx(s.XStep()), m_dy(s.YStep()), m_dz(s.ZStep()), P(s.Dims()), U(s.Dims()), R(s.Dims()){};
