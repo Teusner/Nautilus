@@ -120,6 +120,55 @@ __global__ void Rzz(float dt, float* Rz, float* Ux, float* Uy, float* Uz, float*
     }
 }
 
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rxy(float dt, float* Rxy, float* Ux, float* Uy, float* S, float tau_sigma) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxy = - Ux[i + (j+2)*x + k*y] + 27 * (Ux[i + (j+1)*x + k*y] - Ux[i + j*x + k*y]) + Ux[i + (j-1)*x + k*y];
+        float Uyx = - Uy[i+2 + j*x + k*y] + 27 * (Uy[i+1 + j*x + k*y] - Uy[i + j*x + k*y]) + Uy[i-1 + j*x + k*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        float a = (2 * tau_sigma - dt) / (2 * tau_sigma + dt);
+        float b = 2 * dt / (2 * tau_sigma + dt);
+        Rxy[i + j*x + k*y] += a * Rxy[i + j*x + k*y] - b * M[material_index].mu_tau_gamma_s * (Uxy + Uyx);
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Ryz(float dt, float* Ryz, float* Uy, float* Uz, float* S, float tau_sigma) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uyz = - Uy[i + j*x + (k+2)*y] + 27 * (Uy[i + j*x + (k+1)*y] - Uy[i + j*x + k*y]) + Uy[i + j*x + (k-1)*y];
+        float Uzy = - Uz[i + (j+2)*x + k*y] + 27 * (Uz[i + (j+1)*x + k*y] - Uz[i + j*x + k*y]) + Uz[i + (j-1)*x + k*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        float a = (2 * tau_sigma - dt) / (2 * tau_sigma + dt);
+        float b = 2 * dt / (2 * tau_sigma + dt);
+        Ryz[i + j*x + k*y] += a * Ryz[i + j*x + k*y] - b * M[material_index].mu_tau_gamma_s * (Uyz + Uzy);
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, float* S, float tau_sigma) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        float Uxz = - Ux[i + j*x + (k+2)*y] + 27 * (Ux[i + j*x + (k+1)*y] - Ux[i + j*x + k*y]) + Ux[i + j*x + (k-1)*y];
+        float Uzx = - Uz[i+2 + j*x + k*y] + 27 * (Uz[i+1 + j*x + k*y] - Uz[i + j*x + k*y]) + Uz[i-1 + j*x + k*y];
+        unsigned int material_index = S[i + j*x + k*y];
+        float a = (2 * tau_sigma - dt) / (2 * tau_sigma + dt);
+        float b = 2 * dt / (2 * tau_sigma + dt);
+        Rxz[i + j*x + k*y] += a * Rxz[i + j*x + k*y] - b * M[material_index].mu_tau_gamma_s * (Uxz + Uzx);
+    }
+}
+
+
 
 int main(int argc, char** argv) {
     const float dt = 0.01;
@@ -150,8 +199,9 @@ int main(int argc, char** argv) {
     thrust::copy(U.x.begin() + 1000, U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nRx : ";
     thrust::copy(R.x.begin() + 1000, R.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nRxy : ";
+    thrust::copy(R.xy.begin() + 1000, R.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\n";
-
 
     dim3 ThreadPerBlock(4, 4, 4);
     dim3 GridDimension(Size.x / ThreadPerBlock.x, Size.y / ThreadPerBlock.y, Size.z / ThreadPerBlock.z);
@@ -165,11 +215,16 @@ int main(int argc, char** argv) {
     CUDA_CHECK( cudaPeekAtLastError() );
     cudaDeviceSynchronize();
 
+    Rxy<Size.x, Size.y, Size.z><<<GridDimension, ThreadPerBlock>>>(dt, thrust::raw_pointer_cast(&R.xy[0]), thrust::raw_pointer_cast(&U.x[0]), thrust::raw_pointer_cast(&U.y[0]), thrust::raw_pointer_cast(&M_s[0]), tau_sigma);
+    CUDA_CHECK( cudaPeekAtLastError() );
+    cudaDeviceSynchronize();
 
     std::cout << "First Iteration\nUx : ";
     thrust::copy(U.x.begin() + 1000, U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     std::cout << "\nRx : ";
     thrust::copy(R.x.begin() + 1000, R.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "\nRxy : ";
+    thrust::copy(R.xy.begin() + 1000, R.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
 
     return 0;
 }
