@@ -7,7 +7,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(event_test ../src/Event.cpp TestEvent.cu)
+add_executable(event_test TestEvent.cu)
 target_link_libraries(event_test gtest_main)
 add_test(EventTest event_test)
 

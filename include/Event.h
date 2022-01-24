@@ -23,3 +23,20 @@ bool operator<(const Event &lhs, const Event &rhs);
 bool operator>(const Event &lhs, const Event &rhs);
 bool operator<=(const Event &lhs, const Event &rhs);
 bool operator>=(const Event &lhs, const Event &rhs);
+
+/// Implementation
+inline bool operator<(const Event &lhs, const Event &rhs) {
+    return lhs.i() < rhs.i();
+}
+
+inline bool operator>(const Event &lhs, const Event &rhs) {
+    return lhs.i() > rhs.i();
+}
+
+inline bool operator<=(const Event &lhs, const Event &rhs) {
+    return lhs.i() <= rhs.i();
+}
+
+inline bool operator>=(const Event &lhs, const Event &rhs) {
+    return lhs.i() >= rhs.i();
+}
