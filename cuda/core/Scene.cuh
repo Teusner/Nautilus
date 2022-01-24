@@ -1,9 +1,12 @@
 #pragma once
+
 #include <queue>
 #include <vector>
+#include <memory>
 
-#include "core/Material.cuh"
-#include "core/Field.cuh"
+#include "Material.cuh"
+#include "Solver.cuh"
+#include "Field.cuh"
 #include "Event.h"
 
 
@@ -100,4 +103,7 @@ class Scene {
 
     /// Memory Field
     public: MemoryField R;
+
+    /// Solver
+    private: std::unique_ptr<Solver> m_solver;
 };

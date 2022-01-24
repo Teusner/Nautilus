@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Scene.cuh"
+// #include "Scene.cuh"
 #include "kernels.cuh"
 
+class Scene;
 
 class Solver {
     /// Default Constructor

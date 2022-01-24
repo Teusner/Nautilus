@@ -1,5 +1,4 @@
 #include "core/Scene.cuh"
-#include "core/Solver.cuh"
 #include "core/Material.cuh"
 
 #include <iostream>
@@ -34,8 +33,8 @@ int main(void) {
     thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.xy.begin(), prg(-1.f,1.f));
     thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.xz.begin(), prg(-1.f,1.f));
 
-    Solver solver;
-    solver.Step<x, y, z>(s);
+    // Solver solver;
+    // solver.Step<x, y, z>(s);
 
     std::cout << "First Iteration\n";
     std::cout << "P  : ";
