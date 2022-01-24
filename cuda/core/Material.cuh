@@ -1,8 +1,10 @@
 #pragma once
 
+#include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
 #include <thrust/detail/config/host_device.h>
 #include <iostream>
+#define N 10
 
 struct DeviceMaterial {
     float inv_rho;
@@ -25,7 +27,7 @@ class Material {
 
         __host__ void CopyToConstant(const void* symbol, unsigned int index) const;
 
-        __host__ DeviceMaterial GetDeviceMaterial() const;
+        __host__ DeviceMaterial GetDeviceMaterial() const { return DeviceMaterial{1 / m_rho, 1, 1}; };
 
     private:
         float m_rho;
@@ -37,3 +39,34 @@ class Material {
 
 std::ostream &operator<<(std::ostream &os, const Material &m);
 std::ostream &operator<<(std::ostream &os, const Material *m);
+
+
+/// Implementation
+
+/// Really necessary ?
+inline void Material::CopyToConstant(const void* symbol, unsigned int index) const {
+    // Copying one material on constant memory
+    DeviceMaterial *temp_h_m = (DeviceMaterial*) malloc(sizeof(DeviceMaterial) * N);
+    cudaMemcpyFromSymbol(temp_h_m, symbol, sizeof(DeviceMaterial)*N);
+
+    // Filling the i-th DeviceMaterial
+    temp_h_m[index].inv_rho = 1 / m_rho;
+    temp_h_m[index].eta_tau_gamma_p = 1.2 - 1;
+    temp_h_m[index].mu_tau_gamma_s = 1.2 - 1;
+
+    cudaMemcpyToSymbol(symbol, temp_h_m, sizeof(DeviceMaterial)*N);
+
+    free(temp_h_m);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const Material &m) {
+    return os << "{rho: " << m.Rho() << ", P: ["
+                        << m.Cp() << ", " << m.Qp() << "], S: ["
+                        << m.Cs() << ", " << m.Qs() << "]}";
+}
+
+inline std::ostream &operator<<(std::ostream &os, const Material *m) {
+    return os << "{rho: " << m->Rho() << ", P: ["
+                        << m->Cp() << ", " << m->Qp() << "], S: ["
+                        << m->Cs() << ", " << m->Qs() << "]}";
+}
