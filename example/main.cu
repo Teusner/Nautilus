@@ -11,16 +11,21 @@
 
 
 int main(void) {
-    float dt = 0.1;
     constexpr unsigned int x = 100;
     constexpr unsigned int y = 100;
     constexpr unsigned int z = 100;
-    const dim3 d(x, y, z);
-    Scene s(d, 1, 1, 1, dt);
+
+    constexpr float dx = 0.1;
+    constexpr float dy = 0.1;
+    constexpr float dz = 0.1;
+
+    constexpr float dt = 0.1;
+
+    Scene s(x, y, z, dx, dy, dz, dt);
 
     s.PrintMaterials();
 
-    thrust::device_vector<float> s_M(d.x * d.y * d.z, 0);
+    thrust::device_vector<float> s_M(x * y * z, 0);
     s.SetScene(s_M);
     s.AllocateMaterials(M);
 

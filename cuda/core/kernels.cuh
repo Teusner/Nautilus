@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/Material.cuh>
 #include <thrust/random.h>
 #define N 10
 

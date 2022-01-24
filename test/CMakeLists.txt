@@ -11,7 +11,7 @@ add_executable(event_test ../src/Event.cpp TestEvent.cu)
 target_link_libraries(event_test gtest_main)
 add_test(EventTest event_test)
 
-add_executable(field_test ../cuda/core/Field.cu TestField.cu)
+add_executable(field_test TestField.cu)
 target_link_libraries(field_test gtest_main)
 add_test(FieldTest field_test)
 

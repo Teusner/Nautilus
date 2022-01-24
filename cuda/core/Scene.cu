@@ -6,9 +6,12 @@
 
 #include <stdexcept>
 
-Scene::Scene(dim3 d, float dx, float dy, float dz, float dt) : m_d(d), m_dx(dx), m_dy(dy), m_dz(dz), m_dt(dt), P(d), U(d), R(d){
+Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z,
+                const float dx, const float dy, const float dz, const float dt
+            ) : m_d(x, y, z), m_dx(dx), m_dy(dy), m_dz(dz), m_dt(dt), P(x, y, z), U(x, y, z), R(x, y, z)
+{
     m_materials = std::vector<Material>(1, Material());
-    m_M = std::vector<float>(d.x * d.y * d.z, 0);
+    m_M = std::vector<float>(x * y * z, 0);
 }
 
 void Scene::AddMaterial(Material m) {

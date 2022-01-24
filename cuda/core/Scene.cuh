@@ -9,13 +9,7 @@
 
 class Scene {
     /// Constructor with a dimension
-    public: Scene(dim3 d, float dx, float dy, float dz, float dt);
-
-    /// Copy Constructor
-    public: Scene(const Scene& s) : m_d(s.Dims()), m_dx(s.XStep()), m_dy(s.YStep()), m_dz(s.ZStep()), P(s.Dims()), U(s.Dims()), R(s.Dims()){};
-
-    /// Move constructor
-    public: Scene(Scene&&) = default;
+    public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt);
 
     /// Scene Dimension Getter
     public: dim3 Dims() const { return m_d; };
@@ -43,13 +37,22 @@ class Scene {
     public: float TimeStep() const { return m_dt; };
 
     /// X-Step Getter
-    public: float XStep() const { return m_dx; };
+    public: float X() const { return m_d.x; };
 
     /// Y-Step Getter
-    public: float YStep() const { return m_dy; };
+    public: float Y() const { return m_d.y; };
 
     /// Z-Step Getter
-    public: float ZStep() const { return m_dz; };
+    public: float Z() const { return m_d.z; };
+
+    /// X-Step Getter
+    public: float dX() const { return m_dx; };
+
+    /// Y-Step Getter
+    public: float dY() const { return m_dy; };
+
+    /// Z-Step Getter
+    public: float dZ() const { return m_dz; };
 
     /// Time Increment
     /// Return the current time increment
