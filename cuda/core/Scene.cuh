@@ -47,13 +47,13 @@ class Scene {
     public: float Z() const { return m_d.z; };
 
     /// X-Step Getter
-    public: float dX() const { return m_dx; };
+    public: float dX() const { return m_dx.x; };
 
     /// Y-Step Getter
-    public: float dY() const { return m_dy; };
+    public: float dY() const { return m_dx.y; };
 
     /// Z-Step Getter
-    public: float dZ() const { return m_dz; };
+    public: float dZ() const { return m_dx.z; };
 
     /// Time Increment
     /// Return the current time increment
@@ -75,13 +75,7 @@ class Scene {
     private: const dim3 m_d;
 
     /// X-step
-    private: const float m_dx;
-
-    /// Y-step
-    private: const float m_dy;
-
-    /// Z-step
-    private: const float m_dz;
+    private: const float3 m_dx;
 
     /// Priority Queue
     /// Priority queue handling Events in priority order
