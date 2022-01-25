@@ -1,23 +1,41 @@
 #include "core/Module.cuh"
 
 #include <gtest/gtest.h>
-#include <functional>
 
 
 TEST(Emitter, Instanciation) {
-    // unsigned int i = 1;
-    // unsigned int j = 5;
-    // unsigned int k = 12;
-    // std::function<float(float)> f = [](float t) { return t; };
+    unsigned int i = 1;
+    unsigned int j = 5;
+    unsigned int k = 12;
+    float (*f)(float) = [](float t) { return t; };
 
-    // // Emitter Object
-    // Emitter e(i, j, k, f);
+    // Emitter Object
+    Emitter e(i, j, k, f);
 
-    // // Tests
-    // EXPECT_EQ(e.X(), i);
-    // EXPECT_EQ(e.Y(), j);
-    // EXPECT_EQ(e.Z(), k);
-    // EXPECT_EQ(e(0), 0);
+    // Tests
+    EXPECT_EQ(e.x, i);
+    EXPECT_EQ(e.y, j);
+    EXPECT_EQ(e.z, k);
+    EXPECT_EQ(e(0), 0);
+}
+
+TEST(Emitter, DeviceEmitter) {
+    unsigned int i = 1;
+    unsigned int j = 5;
+    unsigned int k = 12;
+    float (*f)(float) = [](float t) { return t; };
+
+    // Emitter Object
+    Emitter e(i, j, k, f);
+
+    // Getting DeviceEmitter object
+    DeviceEmitter de = e.GetDeviceEmitter();
+
+    // Tests
+    EXPECT_EQ(de.x, i);
+    EXPECT_EQ(de.y, j);
+    EXPECT_EQ(de.z, k);
+    EXPECT_EQ(de.f, f);
 }
 
 TEST(Emitter, DeviceAllocation) {

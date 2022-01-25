@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <iostream>
 #include <string>
 
@@ -9,7 +8,7 @@
 
 struct DeviceEmitter {
     unsigned int x, y, z;
-    void (*f)(float);
+    float (*f)(float);
 };
 
 class Module {
@@ -42,10 +41,10 @@ class Emitter : public Module {
         __host__ Emitter() {};
 
         /// Constructor with grid position as unsigned int and function
-        __host__ Emitter(unsigned int i, unsigned int j, unsigned int k, std::function<float(float)> f) : Module(i, j, k), m_f(f) {};
+        __host__ Emitter(unsigned int i, unsigned int j, unsigned int k, float (*f)(float)) : Module(i, j, k), m_f(f) {};
 
         /// Constructor with grid position as dim3 and function
-        __host__ Emitter(dim3 d, std::function<float(float)> f) : Module(d), m_f(f) {};
+        __host__ Emitter(dim3 d, float (*f)(float)) : Module(d), m_f(f) {};
 
         /// Call operator to get produced signal
         __host__ float operator()(float x) const { return m_f(x); };
@@ -53,8 +52,11 @@ class Emitter : public Module {
         /// String representation of the Emitter
         __host__ std::string String() const override { return std::string("Emitter"); };
 
+        __host__ DeviceEmitter GetDeviceEmitter() const { return (DeviceEmitter){x, y, z, m_f}; };
+
     private:
-        std::function<float(float)> m_f;
+        float (*m_f)(float);
+        // std::function<float(float)> m_f;
 };
 
 class Reciever : public Module {

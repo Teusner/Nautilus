@@ -35,6 +35,9 @@ int main(void) {
     Emitter e(10, 10, 10, [](float t) { return sin(t); });
     s.emitters.push_back(e);
     s.AllocateEmitters(E);
+    DeviceEmitter de = e.GetDeviceEmitter();
+
+    std::cout << int(de.x) << " " << int(de.y) << " " << int(de.z) << " " << de.f << "\n";
 
     thrust::counting_iterator<unsigned int> index_sequence_begin(0);
     thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.x.begin(), prg(-1.f,1.f));
