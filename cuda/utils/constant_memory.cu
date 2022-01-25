@@ -10,3 +10,12 @@ void CopyMaterialToSymbol(const void* symbol, const std::vector<Material> &mater
     }
     cudaMemcpyToSymbol(symbol, dm.data(), sizeof(DeviceMaterial)*n);
 }
+
+void CopyEmitterToSymbol(const void* symbol, const std::vector<Emitter> &emitters) {
+    unsigned int n = emitters.size();
+    std::vector<DeviceEmitter> de;
+    for (auto const & e : emitters) {
+        de.push_back(e.GetDeviceEmitter());
+    }
+    cudaMemcpyToSymbol(symbol, de.data(), sizeof(DeviceEmitter)*n);
+}

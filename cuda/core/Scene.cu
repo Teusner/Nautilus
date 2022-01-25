@@ -29,7 +29,7 @@ void Scene::AllocateMaterials(const void* symbol) const {
 }
 
 void Scene::AllocateEmitters(const void* symbol) const {
-    cudaMemcpyToSymbol(symbol, emitters.data(), sizeof(Emitter)*emitters.size());
+    CopyEmitterToSymbol(symbol, emitters);
 }
 
 void Scene::SetScene(thrust::device_vector<float> M) {
