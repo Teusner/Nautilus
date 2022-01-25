@@ -11,7 +11,7 @@ Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z
             ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), P(x, y, z), U(x, y, z), R(x, y, z)
 {
     m_materials = std::vector<Material>(1, Material());
-    m_M = std::vector<float>(x * y * z, 0);
+    m_M = thrust::device_vector<float>(x * y * z, 0);
 }
 
 void Scene::AddMaterial(Material m) {
@@ -26,6 +26,10 @@ void Scene::PrintMaterials() const {
 
 void Scene::AllocateMaterials(const void* symbol) const {
     CopyMaterialToSymbol(symbol, m_materials);
+}
+
+void Scene::AllocateEmitters(const void* symbol) const {
+    cudaMemcpyToSymbol(symbol, emitters.data(), sizeof(Emitter)*emitters.size());
 }
 
 void Scene::SetScene(thrust::device_vector<float> M) {

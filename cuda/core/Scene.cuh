@@ -6,6 +6,7 @@
 #include "Material.cuh"
 #include "Field.cuh"
 #include "Event.h"
+#include "Module.cuh"
 
 
 class Scene {
@@ -23,6 +24,9 @@ class Scene {
 
     /// Copy materials to constant memory
     public: void AllocateMaterials(const void* symbol) const;
+
+    /// Copy emitters to constant memory
+    public: void AllocateEmitters(const void* symbol) const;
 
     /// Scene Matrix Getter
     public: thrust::device_vector<float> GetScene() const { return m_M; };
@@ -83,6 +87,9 @@ class Scene {
 
     /// Vector of Material
     private: std::vector<Material> m_materials;
+
+    /// Vector of Emmitters
+    public: std::vector<Emitter> emitters;
 
     /// Scene description vector
     private: thrust::device_vector<float> m_M;

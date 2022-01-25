@@ -1,10 +1,12 @@
 #pragma once
 
 #include <core/Material.cuh>
+#include <core/Module.cuh>
 #include <thrust/random.h>
 #define N 10
 
 __constant__ DeviceMaterial M[N];
+__constant__ DeviceEmitter E[N];
 
 
 template<unsigned int x, unsigned int y, unsigned int z>

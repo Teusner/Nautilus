@@ -2,12 +2,15 @@
 #include "core/Material.cuh"
 
 #include <iostream>
+#include <cmath>
 
 #include "core/Solver.cuh"
 #include "core/kernels.cuh"
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 #include <thrust/iterator/counting_iterator.h>
+
+#include <cuda_profiler_api.h>
 
 
 int main(void) {
@@ -29,13 +32,24 @@ int main(void) {
     s.SetScene(s_M);
     s.AllocateMaterials(M);
 
+    Emitter e(10, 10, 10, [](float t) { return sin(t); });
+    s.emitters.push_back(e);
+    s.AllocateEmitters(E);
+
     thrust::counting_iterator<unsigned int> index_sequence_begin(0);
     thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.x.begin(), prg(-1.f,1.f));
     thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.xy.begin(), prg(-1.f,1.f));
     thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.xz.begin(), prg(-1.f,1.f));
 
+    std::cout << "\nStarting kernels\n";
+
     Solver solver;
-    solver.Step<x, y, z>(s);
+    cudaProfilerStart();
+    unsigned int a = 10;
+    for (unsigned int i = 0; i < a; i++) {
+        solver.Step<x, y, z>(s);
+    }
+    cudaProfilerStop();
 
     std::cout << "First Iteration\n";
     std::cout << "P  : ";

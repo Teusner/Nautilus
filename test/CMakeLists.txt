@@ -15,10 +15,10 @@ add_executable(field_test TestField.cu)
 target_link_libraries(field_test gtest_main)
 add_test(FieldTest field_test)
 
-add_executable(emitter_test ../src/Module.cu TestEmitter.cu)
+add_executable(emitter_test TestEmitter.cu)
 target_link_libraries(emitter_test gtest_main)
 add_test(EmitterTest emitter_test)
 
-add_executable(reciever_test ../src/Module.cu TestReciever.cu)
+add_executable(reciever_test TestReciever.cu)
 target_link_libraries(reciever_test gtest_main)
 add_test(RecieverTest reciever_test)
