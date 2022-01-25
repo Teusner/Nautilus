@@ -12,6 +12,7 @@ Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z
 {
     m_materials = std::vector<Material>(1, Material());
     m_M = thrust::device_vector<float>(x * y * z, 0);
+    F = thrust::device_vector<float> (x * y * z, 0);
 }
 
 void Scene::AddMaterial(Material m) {

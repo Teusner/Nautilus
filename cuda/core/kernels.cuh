@@ -63,7 +63,9 @@ template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void F(float t, Emitter* E, float* F) {
     unsigned int index = threadIdx.x;
     Emitter e = E[index];
-    F[e.x + e.y * x + e.z * y] = e(t);
+    // printf("%f, %f, %f, %f\n", e.x, e.y, e.z, t);
+    printf("%f\n", t);
+    F[e.x + e.y * x + e.z * y] = t;
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
@@ -211,7 +213,7 @@ __global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, float* S, float 
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pxx(float dt, float* Px, float* Ux, float* Uy, float* Uz, float* Rx, float* S) {
+__global__ void Pxx(float dt, float* Px, float* Ux, float* Uy, float* Uz, float* Rx, float* S, float* F) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -221,12 +223,12 @@ __global__ void Pxx(float dt, float* Px, float* Ux, float* Uy, float* Uz, float*
         float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
         float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
         unsigned int material_index = S[i + j*x + k*y];
-        Px[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uyy + Uzz) + Rx[i + j*x + k*y];
+        Px[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uyy + Uzz) + Rx[i + j*x + k*y] + F[i + j*x + k*y];
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pyy(float dt, float* Py, float* Ux, float* Uy, float* Uz, float* Ry, float* S) {
+__global__ void Pyy(float dt, float* Py, float* Ux, float* Uy, float* Uz, float* Ry, float* S, float* F) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -236,12 +238,12 @@ __global__ void Pyy(float dt, float* Py, float* Ux, float* Uy, float* Uz, float*
         float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
         float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
         unsigned int material_index = S[i + j*x + k*y];
-        Py[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uzz) + Ry[i + j*x + k*y];
+        Py[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uzz) + Ry[i + j*x + k*y] + F[i + j*x + k*y];
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pzz(float dt, float* Pz, float* Ux, float* Uy, float* Uz, float* Rz, float* S) {
+__global__ void Pzz(float dt, float* Pz, float* Ux, float* Uy, float* Uz, float* Rz, float* S, float* F) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -251,7 +253,7 @@ __global__ void Pzz(float dt, float* Pz, float* Ux, float* Uy, float* Uz, float*
         float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
         float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
         unsigned int material_index = S[i + j*x + k*y];
-        Pz[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uyy) + Rz[i + j*x + k*y];
+        Pz[i + j*x + k*y] += dt * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uyy) + Rz[i + j*x + k*y] + F[i + j*x + k*y];
     }
 }
 

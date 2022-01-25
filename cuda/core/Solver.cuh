@@ -111,4 +111,64 @@ void Solver::Step(Scene &s) const {
         thrust::raw_pointer_cast(&(s.GetScene()[0])),
         tau_sigma
     );
+
+    Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        s.TimeStep(),
+        thrust::raw_pointer_cast(&(s.P.x[0])),
+        thrust::raw_pointer_cast(&(s.U.x[0])),
+        thrust::raw_pointer_cast(&(s.U.y[0])),
+        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(s.R.x[0])),
+        thrust::raw_pointer_cast(&(s.GetScene()[0])),
+        thrust::raw_pointer_cast(&(s.F[0]))
+    );
+
+    Pyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        s.TimeStep(),
+        thrust::raw_pointer_cast(&(s.P.y[0])),
+        thrust::raw_pointer_cast(&(s.U.x[0])),
+        thrust::raw_pointer_cast(&(s.U.y[0])),
+        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(s.R.y[0])),
+        thrust::raw_pointer_cast(&(s.GetScene()[0])),
+        thrust::raw_pointer_cast(&(s.F[0]))
+    );
+
+    Pzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        s.TimeStep(),
+        thrust::raw_pointer_cast(&(s.P.z[0])),
+        thrust::raw_pointer_cast(&(s.U.x[0])),
+        thrust::raw_pointer_cast(&(s.U.y[0])),
+        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(s.R.z[0])),
+        thrust::raw_pointer_cast(&(s.GetScene()[0])),
+        thrust::raw_pointer_cast(&(s.F[0]))
+    );
+
+    Pxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        s.TimeStep(),
+        thrust::raw_pointer_cast(&(s.P.xy[0])),
+        thrust::raw_pointer_cast(&(s.U.x[0])),
+        thrust::raw_pointer_cast(&(s.U.y[0])),
+        thrust::raw_pointer_cast(&(s.R.xy[0])),
+        thrust::raw_pointer_cast(&(s.GetScene()[0]))
+    );
+
+    Pyz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        s.TimeStep(),
+        thrust::raw_pointer_cast(&(s.P.yz[0])),
+        thrust::raw_pointer_cast(&(s.U.y[0])),
+        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(s.R.yz[0])),
+        thrust::raw_pointer_cast(&(s.GetScene()[0]))
+    );
+
+    Pxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        s.TimeStep(),
+        thrust::raw_pointer_cast(&(s.P.xz[0])),
+        thrust::raw_pointer_cast(&(s.U.x[0])),
+        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(s.R.xz[0])),
+        thrust::raw_pointer_cast(&(s.GetScene()[0]))
+    );
 };

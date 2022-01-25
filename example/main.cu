@@ -30,7 +30,7 @@ int main(void) {
     s.SetScene(s_M);
     s.AllocateMaterials(M);
 
-    Emitter e(10, 10, 10, [](float t) { return sin(t); });
+    Emitter e(10, 10, 10, [](float t) { return t; });
     s.emitters.push_back(e);
 
     std::cout << "Starting kernels\n";
@@ -40,6 +40,7 @@ int main(void) {
     unsigned int a = 10;
     for (unsigned int i = 0; i < a; i++) {
         solver.Step<x, y, z>(s);
+        s.m_i ++;
     }
     cudaProfilerStop();
 

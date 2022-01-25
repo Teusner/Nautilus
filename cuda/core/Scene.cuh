@@ -70,7 +70,7 @@ class Scene {
     private: double m_dt;
     
     /// Time Increment
-    private: unsigned int m_i;
+    public: unsigned int m_i;
     
     /// Scene dimension
     private: const dim3 m_d;
