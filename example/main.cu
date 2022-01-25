@@ -32,7 +32,6 @@ int main(void) {
 
     Emitter e(10, 10, 10, [](float t) { return sin(t); });
     s.emitters.push_back(e);
-    s.AllocateEmitters(E);
 
     std::cout << "Starting kernels\n";
 

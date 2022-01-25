@@ -10,6 +10,9 @@ __constant__ DeviceEmitter E[N];
 
 
 template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void F(float t, Emitter* E, float* F);
+
+template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Ux(float dt, float* Ux, float* Px, float* Pxy, float* Pxz, float* S);
 
 template<unsigned int x, unsigned int y, unsigned int z>
@@ -53,6 +56,15 @@ __global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, floa
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, float* S);
+
+
+/// Implementation
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void F(float t, Emitter* E, float* F) {
+    unsigned int index = threadIdx.x;
+    Emitter e = E[index];
+    F[e.x + e.y * x + e.z * y] = e(t);
+}
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Ux(float dt, float* Ux, float* Px, float* Pxy, float* Pxz, float* S) {

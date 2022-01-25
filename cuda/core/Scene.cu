@@ -28,10 +28,6 @@ void Scene::AllocateMaterials(const void* symbol) const {
     CopyMaterialToSymbol(symbol, m_materials);
 }
 
-void Scene::AllocateEmitters(const void* symbol) const {
-    CopyEmitterToSymbol(symbol, emitters);
-}
-
 void Scene::SetScene(thrust::device_vector<float> M) {
     if (M.size() != m_d.x * m_d.y * m_d.z) {
         throw std::invalid_argument("Scene vector size does not match the Scene dimensions !");
