@@ -6,10 +6,6 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 
-struct DeviceEmitter {
-    unsigned int x, y, z;
-    float (*f)(float);
-};
 
 class Module {
     public:
@@ -52,11 +48,8 @@ class Emitter : public Module {
         /// String representation of the Emitter
         __host__ std::string String() const override { return std::string("Emitter"); };
 
-        __host__ DeviceEmitter GetDeviceEmitter() const { return (DeviceEmitter){x, y, z, m_f}; };
-
     private:
         float (*m_f)(float);
-        // std::function<float(float)> m_f;
 };
 
 class Reciever : public Module {

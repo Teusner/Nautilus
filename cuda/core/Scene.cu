@@ -29,17 +29,14 @@ void Scene::AllocateMaterials(const void* symbol) const {
     CopyMaterialToSymbol(symbol, m_materials);
 }
 
-void Scene::SetScene(thrust::device_vector<float> M) {
-    if (M.size() != m_d.x * m_d.y * m_d.z) {
+void Scene::SetScene(thrust::device_vector<unsigned int> &M) {
+    // Checking scene size
+    if (M.size() != m_d.x * m_d.y * m_d.z)
         throw std::invalid_argument("Scene vector size does not match the Scene dimensions !");
-    }
 
-    unsigned int s = m_materials.size();
-    for (const auto & v : M) {
-        if (v >= s) {
-            throw std::invalid_argument("Scene vector contains uninitialized materials !");
-        }
-    }
+    // Checking undefined material
+    if (thrust::transform_reduce(M.begin(), M.end(), CheckUndefinedMaterial(m_materials.size()), false, thrust::plus<bool>()))
+        throw std::invalid_argument("Scene vector contains uninitialized materials !");
 
     m_M = M;
 }

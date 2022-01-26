@@ -12,6 +12,10 @@
 
 #include <cuda_profiler_api.h>
 
+__host__ __device__ float f(float x) {
+    return std::sin(x);
+}
+
 
 int main(void) {
     constexpr unsigned int x = 100;
@@ -26,14 +30,12 @@ int main(void) {
 
     Scene s(x, y, z, dx, dy, dz, dt);
 
-    thrust::device_vector<float> s_M(x * y * z, 0);
+    thrust::device_vector<unsigned int> s_M(x * y * z, 0);
     s.SetScene(s_M);
     s.AllocateMaterials(M);
 
-    Emitter e(10, 10, 10, [](float t) { return t; });
+    Emitter e(10, 10, 10, &f);
     s.emitters.push_back(e);
-
-    std::cout << "Starting kernels\n";
 
     Solver solver;
     cudaProfilerStart();

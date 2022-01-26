@@ -26,10 +26,10 @@ class Scene {
     public: void AllocateMaterials(const void* symbol) const;
 
     /// Scene Matrix Getter
-    public: thrust::device_vector<float> GetScene() const { return m_M; };
+    public: thrust::device_vector<unsigned int> GetScene() const { return m_M; };
 
     /// Scene Matrix Setter
-    public: void SetScene(thrust::device_vector<float> M);
+    public: void SetScene(thrust::device_vector<unsigned int> &M);
 
     /// Simulation Time
     /// Return the current simulation time
@@ -89,7 +89,7 @@ class Scene {
     public: thrust::device_vector<Emitter> emitters;
 
     /// Scene description vector
-    private: thrust::device_vector<float> m_M;
+    private: thrust::device_vector<unsigned int> m_M;
 
     /// Pressure Field
     public: PressureField P;
