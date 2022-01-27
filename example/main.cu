@@ -26,7 +26,8 @@ int main(void) {
     constexpr float dt = 0.1;
 
     // FrequencyDomain
-    FrequencyDomain(2*3.14*2., 2*3.14*100.);
+    FrequencyDomain fd(2*3.14*2., 2*3.14*25.);
+    fd.tau(20);
 
     Scene s(x, y, z, dx, dy, dz, dt);
 
@@ -46,16 +47,16 @@ int main(void) {
     }
     cudaProfilerStop();
 
-    std::cout << "P  : ";
-    thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nPxy : ";
-    thrust::copy(s.P.xy.begin() + 1000, s.P.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nUx  : ";
-    thrust::copy(s.U.x.begin() + 1000, s.U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nRx : ";
-    thrust::copy(s.R.x.begin() + 1000, s.R.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nRxy : ";
-    thrust::copy(s.R.xy.begin() + 1000, s.R.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "P  : ";
+    // thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nPxy : ";
+    // thrust::copy(s.P.xy.begin() + 1000, s.P.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nUx  : ";
+    // thrust::copy(s.U.x.begin() + 1000, s.U.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nRx : ";
+    // thrust::copy(s.R.x.begin() + 1000, s.R.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nRxy : ";
+    // thrust::copy(s.R.xy.begin() + 1000, s.R.xy.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));
     
     return 0;
 }
