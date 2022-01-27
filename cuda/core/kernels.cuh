@@ -62,7 +62,7 @@ template<unsigned int x, unsigned int y, unsigned int z, typename T>
 __global__ void F(float t, T* E, float* F) {
     unsigned int index = threadIdx.x;
     T e = E[index];
-    printf("%f\n", e(t));
+    // printf("%f\n", e(t));
     F[e.x + e.y * x + e.z * y] = e(t);
 }
 

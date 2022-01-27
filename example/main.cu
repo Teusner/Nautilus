@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "core/Solver.cuh"
+#include "core/FrequencyDomain.cuh"
 #include "core/kernels.cuh"
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
@@ -23,6 +24,9 @@ int main(void) {
     constexpr float dz = 0.1;
 
     constexpr float dt = 0.1;
+
+    // FrequencyDomain
+    FrequencyDomain(2*3.14*2., 2*3.14*100.);
 
     Scene s(x, y, z, dx, dy, dz, dt);
 
