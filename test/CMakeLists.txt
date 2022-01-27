@@ -22,3 +22,7 @@ add_test(EmitterTest emitter_test)
 add_executable(reciever_test TestReciever.cu)
 target_link_libraries(reciever_test gtest_main)
 add_test(RecieverTest reciever_test)
+
+add_executable(frequency_domain_test TestFrequencyDomain.cu)
+target_link_libraries(frequency_domain_test gtest_main)
+add_test(FrequencyDomainTest frequency_domain_test)

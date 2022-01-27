@@ -12,10 +12,6 @@
 
 #include <cuda_profiler_api.h>
 
-__host__ __device__ float f(float x) {
-    return std::sin(x);
-}
-
 
 int main(void) {
     constexpr unsigned int x = 100;
@@ -34,14 +30,14 @@ int main(void) {
     s.SetScene(s_M);
     s.AllocateMaterials(M);
 
-    Emitter e(10, 10, 10, &f);
+    SinEmitter e(10, 10, 10);
     s.emitters.push_back(e);
 
     Solver solver;
     cudaProfilerStart();
-    unsigned int a = 10;
+    unsigned int a = 50;
     for (unsigned int i = 0; i < a; i++) {
-        solver.Step<x, y, z>(s);
+        solver.Step<x, y, z, SinEmitter>(s);
         s.m_i ++;
     }
     cudaProfilerStop();

@@ -58,11 +58,12 @@ __global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, unsi
 
 
 /// Implementation
-template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void F(float t, Emitter* E, float* F) {
+template<unsigned int x, unsigned int y, unsigned int z, typename T>
+__global__ void F(float t, T* E, float* F) {
     unsigned int index = threadIdx.x;
-    Emitter e = E[index];
-    F[e.x + e.y * x + e.z * y] = t;
+    T e = E[index];
+    printf("%f\n", e(t));
+    F[e.x + e.y * x + e.z * y] = e(t);
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>

@@ -52,6 +52,20 @@ class Emitter : public Module {
         float (*m_f)(float);
 };
 
+class SinEmitter : public Module {
+    // Default Constructor
+    public:  __host__ __device__ SinEmitter() {};
+
+    /// Constructor with grid position as unsigned int and function
+    public: __host__ __device__ SinEmitter(unsigned int i, unsigned int j, unsigned int k) : Module(i, j, k) {};
+
+    /// Constructor with grid position as dim3 and function
+    public: __host__ __device__ SinEmitter(dim3 d) : Module(d) {};
+
+    /// Call operator
+    public: __host__ __device__ float operator()(float t) const { return 0.000001*sin(t); };
+};
+
 class Reciever : public Module {
     public:
         /// Default Constructor

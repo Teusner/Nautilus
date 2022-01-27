@@ -10,7 +10,7 @@ class Solver {
 
     /// Step Simulation
     /// Compute the next state
-    public: template<unsigned int x, unsigned int y, unsigned int z> void Step(Scene &s) const;
+    public: template<unsigned int x, unsigned int y, unsigned int z, typename T> void Step(Scene &s) const;
 
     /// Run Simulation
     /// Run the simulation until the next event
@@ -18,11 +18,11 @@ class Solver {
     public: void RunNext(Scene &s) const;
 };
 
-template<unsigned int x, unsigned int y, unsigned int z>
+template<unsigned int x, unsigned int y, unsigned int z, typename T>
 void Solver::Step(Scene &s) const {
 
     // Emitter Field computing
-    F<x, y, z><<<1, 1>>>(s.Time(), thrust::raw_pointer_cast(&(s.emitters[0])), thrust::raw_pointer_cast(&(s.F[0])));
+    F<x, y, z, T><<<1, 1>>>(s.Time(), thrust::raw_pointer_cast(&(s.emitters[0])), thrust::raw_pointer_cast(&(s.F[0])));
 
     float tau_sigma = 0.1;
     dim3 ThreadPerBlock(4, 4, 4);

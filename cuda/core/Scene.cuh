@@ -86,7 +86,7 @@ class Scene {
     private: std::vector<Material> m_materials;
 
     /// Vector of Emmitters
-    public: thrust::device_vector<Emitter> emitters;
+    public: thrust::device_vector<SinEmitter> emitters;
 
     /// Scene description vector
     private: thrust::device_vector<unsigned int> m_M;
