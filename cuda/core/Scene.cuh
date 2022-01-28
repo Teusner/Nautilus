@@ -7,11 +7,12 @@
 #include "Field.cuh"
 #include "Event.h"
 #include "Module.cuh"
+#include "FrequencyDomain.cuh"
 
 
 class Scene {
     /// Constructor with a dimension
-    public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt);
+    public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt, const float omega_min, const float omega_max);
 
     /// Scene Dimension Getter
     public: dim3 Dims() const { return m_d; };
@@ -102,4 +103,7 @@ class Scene {
 
     /// Emitter Pressure Field
     public: thrust::device_vector<float> F;
+
+    /// FrequencyDomain
+    private: FrequencyDomain m_fd;
 };

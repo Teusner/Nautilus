@@ -4,6 +4,8 @@
 #include <thrust/device_ptr.h>
 #include <thrust/detail/config/host_device.h>
 #include <iostream>
+
+#include "FrequencyDomain.cuh"
 #define N 10
 
 struct DeviceMaterial {
@@ -58,6 +60,10 @@ inline void Material::CopyToConstant(const void* symbol, unsigned int index) con
 
     free(temp_h_m);
 }
+
+// inline DeviceMaterial Material::GetDeviceMaterial(const FrequencyDomain &fd) {
+//     return DeviceMaterial {1 / m_rho, m_rho * std::pow(m_cp, 2) * fd.tau(m_Qp), m_rho * std::pow(m_cs, 2) * fd.tau(Qs)}
+// }
 
 inline std::ostream &operator<<(std::ostream &os, const Material &m) {
     return os << "{rho: " << m.Rho() << ", P: ["

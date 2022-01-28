@@ -26,14 +26,15 @@ int main(void) {
     constexpr float dt = 0.1;
 
     // FrequencyDomain
-    float omega_min = 2*M_PI*2.;
-    float omega_max = 2*M_PI*25.;
+    float omega_min = 2*M_PI*10.;
+    float omega_max = 2*M_PI*75.;
     float Q_0 = 18;
-    FrequencyDomain fd(omega_min, omega_max);
-    float tau = fd.tau(Q_0);
-    std::cout << "Tau: " << tau << std::endl;
+    const unsigned int n = 1;
+    FrequencyDomain freq_dom(omega_min, omega_max, n);
+    float tau = freq_dom.tau(Q_0);
+    std::cout << "Tau_s: " << freq_dom.TauSigma()[0] << " Tau: " << tau << std::endl;
 
-    Scene s(x, y, z, dx, dy, dz, dt);
+    Scene s(x, y, z, dx, dy, dz, dt, omega_min, omega_max);
 
     thrust::device_vector<unsigned int> s_M(x * y * z, 0);
     s.SetScene(s_M);

@@ -53,7 +53,12 @@ inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega
         return (1/m_min + 1/m_max) / float(std::pow(2., n-i-1));
     };
     tau_sigma.resize(n);
-    std::generate(std::begin(tau_sigma), std::end(tau_sigma), f);
+    if (n == 1) {
+        tau_sigma[0] = 2. / (m_min + m_max);
+    }
+    else {
+        std::generate(std::begin(tau_sigma), std::end(tau_sigma), f);
+    }
 
     // I computing
     std::vector<float> I0l;
