@@ -26,8 +26,12 @@ int main(void) {
     constexpr float dt = 0.1;
 
     // FrequencyDomain
-    FrequencyDomain fd(2*3.14*2., 2*3.14*25.);
-    fd.tau(20);
+    float omega_min = 2*M_PI*2.;
+    float omega_max = 2*M_PI*25.;
+    float Q_0 = 18;
+    FrequencyDomain fd(omega_min, omega_max);
+    float tau = fd.tau(Q_0);
+    std::cout << "Tau: " << tau << std::endl;
 
     Scene s(x, y, z, dx, dy, dz, dt);
 
