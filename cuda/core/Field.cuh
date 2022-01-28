@@ -1,32 +1,6 @@
 #pragma once
 #include <thrust/device_vector.h>
-
-
-class Field {
-    /// Default Constructor
-    public: Field() : m_dim(0, 0, 0) {};
-
-    /// Constructor with Field size
-    public: Field(dim3 d) : m_dim(d) {};
-
-    /// Constructor with Field size
-    public: Field(const unsigned int x, const unsigned int y, const unsigned int z) : Field(dim3(x, y, z)) {};
-    
-    /// Size Getter
-    public: dim3 Dim() const { return m_dim; };
-
-    /// X Getter
-    public: unsigned int X() const { return m_dim.x; };
-    
-    /// Y Getter
-    public: unsigned int Y() const { return m_dim.y; };
-
-    /// Z Getter
-    public: unsigned int Z() const { return m_dim.z; };
-
-    /// Field size
-    protected: const dim3 m_dim;
-};
+#include <thrust/iterator/zip_iterator.h>
 
 template<typename Vector>
 struct VelocityField {
