@@ -93,13 +93,13 @@ class Scene {
     private: thrust::device_vector<unsigned int> m_M;
 
     /// Pressure Field
-    public: PressureField P;
+    public: PressureField<thrust::device_vector<float>> P;
 
     /// Velocity Field
-    public: VelocityField U;
+    public: VelocityField<thrust::device_vector<float>> U;
 
     /// Memory Field
-    public: MemoryField R;
+    public: MemoryField<thrust::device_vector<float>> R;
 
     /// Emitter Pressure Field
     public: thrust::device_vector<float> F;

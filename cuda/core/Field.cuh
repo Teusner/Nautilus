@@ -28,101 +28,164 @@ class Field {
     protected: const dim3 m_dim;
 };
 
-class PressureField : public Field {
-    /// Constructor
-    public: PressureField(dim3 d);
+template<typename Vector>
+struct VelocityField {
 
-    public: PressureField(const unsigned int x, const unsigned int y, const unsigned int z) : PressureField(dim3(x, y, z)) {};
-
-    /// X Pressure
-    public: thrust::device_vector<float> x;
-
-    /// Y Pressure
-    public: thrust::device_vector<float> y;
-
-    /// Z Pressure
-    public: thrust::device_vector<float> z;
-
-    /// XY Pressure
-    public: thrust::device_vector<float> xy;
-
-    /// Yz Pressure
-    public: thrust::device_vector<float> yz;
-
-    /// XZ Pressure
-    public: thrust::device_vector<float> xz;
-};
-
-class VelocityField : public Field {
+    /// Type Definitions
+    typedef typename Vector::value_type T;
+    typedef thrust::zip_iterator<
+        thrust::tuple<
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator
+        >
+    > iterator;
 
     /// Constructor
-    public: VelocityField(dim3 d);
+    VelocityField(std::size_t size_) : size(size_), x(size), y(size), z(size) {};
 
-    public: VelocityField(const unsigned int x, const unsigned int y, const unsigned int z) : VelocityField(dim3(x, y, z)) {}
+    /// Member variables
+    std::size_t size;
+    Vector x;
+    Vector y;
+    Vector z;
 
-    /// X Velocity
-    public: thrust::device_vector<float> x;
+    /// Copy operator
+    template <typename TOther>
+    VelocityField<Vector>& operator=(const TOther &other) {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+        return *this;
+    }
 
-    /// Y Velocity
-    public: thrust::device_vector<float> y;
+    /// Begin iterator
+    iterator begin() {
+        return thrust::make_zip_iterator(thrust::make_tuple(x.begin(),y.begin(),z.begin()));
+    }
 
-    /// Z Velocity
-    public: thrust::device_vector<float> z;
+    /// End iterator
+    iterator end() {
+        return thrust::make_zip_iterator(thrust::make_tuple(x.end(),y.end(),z.end()));
+    }
+
+    /// Array of structure getter at index
+    struct Ref {
+        T &x; T &y; T &z;
+        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)) {}
+    };
 };
 
-class MemoryField : public Field {
+template<typename Vector>
+struct PressureField {
+
+    /// Type Definitions
+    typedef typename Vector::value_type T;
+    typedef thrust::zip_iterator<
+        thrust::tuple<
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator
+        >
+    > iterator;
 
     /// Constructor
-    public: MemoryField(dim3 d);
+    PressureField(std::size_t size_) : size(size_), x(size), y(size), z(size), xy(size), yz(size), xz(size) {};
 
-    public: MemoryField(const unsigned int x, const unsigned int y, const unsigned int z) : MemoryField(dim3(x, y, z)) {}
+    /// Member variables
+    std::size_t size;
+    Vector x;
+    Vector y;
+    Vector z;
+    Vector xy;
+    Vector yz;
+    Vector xz;
 
-    /// X Memory
-    public: thrust::device_vector<float> x;
+    /// Copy operator
+    template <typename TOther>
+    PressureField<Vector>& operator=(const TOther &other) {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+        xy = other.xy;
+        yz = other.yz;
+        xz = other.xz;
+        return *this;
+    }
 
-    /// Y Memory
-    public: thrust::device_vector<float> y;
+    /// Begin iterator
+    iterator begin() {
+        return thrust::make_zip_iterator(thrust::make_tuple(x.begin(),y.begin(),z.begin(),xy.begin(),yz.begin(),xz.begin()));
+    }
 
-    /// Z Memory
-    public: thrust::device_vector<float> z;
+    /// End iterator
+    iterator end() {
+        return thrust::make_zip_iterator(thrust::make_tuple(x.end(),y.end(),z.end(),xy.end(),yz.end(),xz.end()));
+    }
 
-    /// XY Memory
-    public: thrust::device_vector<float> xy;
-
-    /// YZ Memory
-    public: thrust::device_vector<float> yz;
-
-    /// XZ Memory
-    public: thrust::device_vector<float> xz;
+    /// Array of structure getter at index
+    struct Ref {
+        T &x; T &y; T &z; T &xy; T &yz; T &xz;
+        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)), xy(thrust::get<3>(z)), yz(thrust::get<4>(z)), yz(thrust::get<5>(z)){}
+    };
 };
 
+template<typename Vector>
+struct MemoryField {
 
-/// PressureField Declaration
-inline PressureField::PressureField(dim3 d) : Field(d) {
-    unsigned int size = m_dim.x * m_dim.y * m_dim.z;
-    x = thrust::device_vector<float>(size, 0);
-    y = thrust::device_vector<float>(size, 0);
-    z = thrust::device_vector<float>(size, 0);
-    xy = thrust::device_vector<float>(size, 0);
-    yz = thrust::device_vector<float>(size, 0);
-    xz = thrust::device_vector<float>(size, 0);
-}
+    /// Type Definitions
+    typedef typename Vector::value_type T;
+    typedef thrust::zip_iterator<
+        thrust::tuple<
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator
+        >
+    > iterator;
 
-/// VelocityField Declaration
-inline VelocityField::VelocityField(dim3 d) : Field(d) {
-    unsigned int size = m_dim.x * m_dim.y * m_dim.z;
-    x = thrust::device_vector<float> (size, 0);
-    y = thrust::device_vector<float> (size, 0);
-    z = thrust::device_vector<float> (size, 0);
-}
+    /// Constructor
+    MemoryField(std::size_t size_) : size(size_), x(size), y(size), z(size), xy(size), yz(size), xz(size) {};
 
-/// MemoryField Declaration
-inline MemoryField::MemoryField(dim3 d) : Field(d) {
-    unsigned int size = m_dim.x * m_dim.y * m_dim.z;
-    x = thrust::device_vector<float> (size, 0);
-    y = thrust::device_vector<float> (size, 0);
-    z = thrust::device_vector<float> (size, 0);
-    xy = thrust::device_vector<float> (size, 0);
-    yz = thrust::device_vector<float> (size, 0);
-    xz = thrust::device_vector<float> (size, 0);
-}
+    /// Member variables
+    std::size_t size;
+    Vector x;
+    Vector y;
+    Vector z;
+    Vector xy;
+    Vector yz;
+    Vector xz;
+
+    /// Copy operator
+    template <typename TOther>
+    MemoryField<Vector>& operator=(const TOther &other) {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+        xy = other.xy;
+        yz = other.yz;
+        xz = other.xz;
+        return *this;
+    }
+
+    /// Begin iterator
+    iterator begin() {
+        return thrust::make_zip_iterator(thrust::make_tuple(x.begin(),y.begin(),z.begin(),xy.begin(),yz.begin(),xz.begin()));
+    }
+
+    /// End iterator
+    iterator end() {
+        return thrust::make_zip_iterator(thrust::make_tuple(x.end(),y.end(),z.end(),xy.end(),yz.end(),xz.end()));
+    }
+
+    /// Array of structure getter at index
+    struct Ref {
+        T &x; T &y; T &z; T &xy; T &yz; T &xz;
+        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)), xy(thrust::get<3>(z)), yz(thrust::get<4>(z)), yz(thrust::get<5>(z)){}
+    };
+};
