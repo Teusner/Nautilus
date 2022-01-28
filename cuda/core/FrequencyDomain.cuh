@@ -11,13 +11,16 @@ class FrequencyDomain {
     public: FrequencyDomain() {};
 
     /// Constructor with omega range and the number of relaxation variables
-    public: FrequencyDomain(const float omega_min, const float omega_max, unsigned int n = 5);
+    public: FrequencyDomain(const float omega_min, const float omega_max, unsigned int l_ = 5);
 
     /// Omega Min Getter
     public: float OmegaMin() const { return m_min; };
 
     /// Omega Max Getter
     public: float OmegaMax() const { return m_max; };
+
+    /// Numbre of relaxation constraints getter
+    public: unsigned int l() const { return m_l; };
 
     /// Tau Sigma Getter
     public: std::vector<float> TauSigma() const { return tau_sigma; };
@@ -29,6 +32,9 @@ class FrequencyDomain {
     private: float m_min;
     private: float m_max;
 
+    /// Number of relaxation constraints
+    private: unsigned int m_l;
+
     /// Relaxation constraints
     private: std::vector<float> tau_sigma;
 
@@ -37,7 +43,8 @@ class FrequencyDomain {
 };
 
 /// Implementation
-inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega_max, unsigned int n) {
+inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega_max, unsigned int l_) {
+    m_l = l_;
     m_min = std::min(omega_min, omega_max);
     m_max = std::max(omega_min, omega_max);
 
@@ -48,12 +55,12 @@ inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega
     int i = -1;
     auto f = [&] () {
         i++;
-        if (i==0) return 1/m_max;
-        if (i==n-1) return 1/m_min;
-        return (1/m_min + 1/m_max) / float(std::pow(2., n-i-1));
+        if (i==0) return 1 / m_max;
+        if (i==m_l-1) return 1 / m_min;
+        return (1 / m_min + 1 / m_max) / float(std::pow(2., m_l-i-1));
     };
-    tau_sigma.resize(n);
-    if (n == 1) {
+    tau_sigma.resize(m_l);
+    if (m_l == 1) {
         tau_sigma[0] = 2. / (m_min + m_max);
     }
     else {
@@ -74,12 +81,12 @@ inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega
     };
     auto I2kl = [&]() {
         float val =  tau_sigma[l]*tau_sigma[k] / (std::pow(tau_sigma[k], 2) - std::pow(tau_sigma[l], 2)) * (f21(m_max) - f21(m_min));
-        if (k == n-1) { l++; k = l; }
+        if (k == m_l-1) { l++; k = l; }
         k++;
         return val;
     };
 
-    std::vector<float> I2l(n*(n-1)/2);
+    std::vector<float> I2l(m_l*(m_l-1)/2);
     std::generate(std::begin(I2l), std::end(I2l), I2kl);
 
     m_I = std::accumulate(std::begin(I0l), std::end(I0l), 0.) / (std::accumulate(std::begin(I1l), std::end(I1l), 0.) + 2 * std::accumulate(std::begin(I2l), std::end(I2l), 0.));

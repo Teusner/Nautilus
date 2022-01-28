@@ -6,6 +6,8 @@
 #define N 10
 
 __constant__ DeviceMaterial M[N];
+__constant__ unsigned int l;
+__constant__ float dt;
 
 
 template<unsigned int x, unsigned int y, unsigned int z>
@@ -116,6 +118,8 @@ __global__ void Rxx(float dt, float* Rx, float* Ux, float* Uy, float* Uz, unsign
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    // printf("%x", l);
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];

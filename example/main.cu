@@ -34,7 +34,7 @@ int main(void) {
     float tau = freq_dom.tau(Q_0);
     std::cout << "Tau_s: " << freq_dom.TauSigma()[0] << " Tau: " << tau << std::endl;
 
-    Scene s(x, y, z, dx, dy, dz, dt, omega_min, omega_max);
+    Scene s(x, y, z, dx, dy, dz, dt, freq_dom);
 
     thrust::device_vector<unsigned int> s_M(x * y * z, 0);
     s.SetScene(s_M);
@@ -44,6 +44,8 @@ int main(void) {
     s.emitters.push_back(e);
 
     Solver solver;
+    solver.Init(s);
+    std::cout << " Lege\n" << std::flush;
     cudaProfilerStart();
     unsigned int a = 10;
     for (unsigned int i = 0; i < a; i++) {

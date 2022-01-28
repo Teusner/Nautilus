@@ -8,6 +8,8 @@ class Solver {
     /// Default Constructor
     public: Solver() {};
 
+    public: void Init(Scene &s) const;
+
     /// Step Simulation
     /// Compute the next state
     public: template<unsigned int x, unsigned int y, unsigned int z, typename T> void Step(Scene &s) const;
@@ -17,6 +19,13 @@ class Solver {
     /// in the priority queue of the scene
     public: void RunNext(Scene &s) const;
 };
+
+inline void Solver::Init(Scene &s) const {
+    float dt = s.TimeStep();
+    cudaMemcpyToSymbol(dt, &dt, sizeof(float), 0, cudaMemcpyHostToDevice);
+    unsigned int l = s.l();
+    cudaMemcpyToSymbol(l, &l, sizeof(unsigned int), 0, cudaMemcpyHostToDevice);
+}
 
 template<unsigned int x, unsigned int y, unsigned int z, typename T>
 void Solver::Step(Scene &s) const {

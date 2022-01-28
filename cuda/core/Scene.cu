@@ -7,13 +7,12 @@
 #include <stdexcept>
 
 Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z,
-                const float dx, const float dy, const float dz, const float dt, const float omega_min, const float omega_max
-            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), P(x*y*z), U(x*y*z), R(x*y*z), m_fd(omega_min, omega_max)
+                const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain
+            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), R(x*y*z*m_frequency_domain.l())
 {
     m_materials = std::vector<Material>(1, Material());
     m_M = thrust::device_vector<float>(x * y * z, 0);
     F = thrust::device_vector<float> (x * y * z, 0);
-    std::cout << m_fd.tau(18) << std::endl;
 }
 
 void Scene::AddMaterial(Material m) {

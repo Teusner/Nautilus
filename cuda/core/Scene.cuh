@@ -12,7 +12,7 @@
 
 class Scene {
     /// Constructor with a dimension
-    public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt, const float omega_min, const float omega_max);
+    public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain);
 
     /// Scene Dimension Getter
     public: dim3 Dims() const { return m_d; };
@@ -79,7 +79,6 @@ class Scene {
     /// X-step
     private: const float3 m_dx;
 
-    /// Priority Queue
     /// Priority queue handling Events in priority order
     private : std::priority_queue<Event, std::vector<Event>, std::greater<Event>> m_events;
 
@@ -104,6 +103,8 @@ class Scene {
     /// Emitter Pressure Field
     public: thrust::device_vector<float> F;
 
+    public: unsigned int l() const { return m_frequency_domain.l(); };
+
     /// FrequencyDomain
-    private: FrequencyDomain m_fd;
+    private: FrequencyDomain m_frequency_domain;
 };
