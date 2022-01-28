@@ -3,18 +3,29 @@ digraph G {
         style=filled;
 		color=lightgray;
         node[style=filled,color=white];
+        Scene;
+        Solver;
+        FrequencyDomain;
+        label="Scene";
+    }
+
+    subgraph cluster_1 {
+        style=filled;
+		color=lightgray;
+        node[style=filled,color=white];
         PressureField; VelocityField; MemoryField;
         label="Field";
     }
-
-    Scene;
-    Solver;
-    FrequencyDomain;
 
     Scene -> Solver;
     Scene -> PressureField;
     Scene -> VelocityField;
     Scene -> MemoryField;
+
+    Solver -> PressureField;
+    Solver -> VelocityField;
+    Solver -> MemoryField;
+
     Scene -> FrequencyDomain;
     FrequencyDomain -> MemoryField;
 }
