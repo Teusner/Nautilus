@@ -45,7 +45,6 @@ int main(void) {
 
     Solver solver;
     solver.Init(s);
-    std::cout << " Lege\n" << std::flush;
     cudaProfilerStart();
     unsigned int a = 10;
     for (unsigned int i = 0; i < a; i++) {

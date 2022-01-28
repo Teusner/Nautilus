@@ -22,9 +22,9 @@ class Solver {
 
 inline void Solver::Init(Scene &s) const {
     float dt = s.TimeStep();
-    cudaMemcpyToSymbol(dt, &dt, sizeof(float), 0, cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(d_dt, &dt, sizeof(float), 0, cudaMemcpyHostToDevice);
     unsigned int l = s.l();
-    cudaMemcpyToSymbol(l, &l, sizeof(unsigned int), 0, cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(d_l, &l, sizeof(unsigned int), 0, cudaMemcpyHostToDevice);
 }
 
 template<unsigned int x, unsigned int y, unsigned int z, typename T>
@@ -38,7 +38,6 @@ void Solver::Step(Scene &s) const {
     dim3 GridDimension(x / ThreadPerBlock.x, y / ThreadPerBlock.y, z / ThreadPerBlock.z);
 
     Ux<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.P.x[0])),
         thrust::raw_pointer_cast(&(s.P.xy[0])),
@@ -47,7 +46,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Uy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.P.x[0])),
         thrust::raw_pointer_cast(&(s.P.xy[0])),
@@ -56,7 +54,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Uz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.P.x[0])),
         thrust::raw_pointer_cast(&(s.P.xy[0])),
@@ -65,7 +62,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.R.x[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -75,7 +71,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.R.y[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -85,7 +80,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.R.z[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -95,7 +89,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Rxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.R.xy[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -104,7 +97,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Ryz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.R.yz[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
         thrust::raw_pointer_cast(&(s.U.z[0])),
@@ -113,7 +105,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Rxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.R.xz[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.z[0])),
@@ -122,7 +113,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.P.x[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -133,7 +123,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Pyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.P.y[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -144,7 +133,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Pzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.P.z[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -155,7 +143,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Pxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.P.xy[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
@@ -164,7 +151,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Pyz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.P.yz[0])),
         thrust::raw_pointer_cast(&(s.U.y[0])),
         thrust::raw_pointer_cast(&(s.U.z[0])),
@@ -173,7 +159,6 @@ void Solver::Step(Scene &s) const {
     );
 
     Pxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        s.TimeStep(),
         thrust::raw_pointer_cast(&(s.P.xz[0])),
         thrust::raw_pointer_cast(&(s.U.x[0])),
         thrust::raw_pointer_cast(&(s.U.z[0])),
