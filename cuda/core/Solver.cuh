@@ -61,29 +61,48 @@ void Solver::Step(Scene &s) const {
         thrust::raw_pointer_cast(&(s.GetScene()[0]))
     );
 
+    thrust::device_vector<float> uxx(x*y*z);
+    thrust::device_vector<float> uyy(x*y*z);
+    thrust::device_vector<float> uzz(x*y*z);
+
+    Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(s.U.x[0])),
+        thrust::raw_pointer_cast(&(uxx[0]))
+    );
+
+    Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(s.U.y[0])),
+        thrust::raw_pointer_cast(&(uyy[0]))
+    );
+
+    Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(uzz[0]))
+    );
+
     Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         thrust::raw_pointer_cast(&(s.R.x[0])),
-        thrust::raw_pointer_cast(&(s.U.x[0])),
-        thrust::raw_pointer_cast(&(s.U.y[0])),
-        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
         thrust::raw_pointer_cast(&(s.GetScene()[0])),
         tau_sigma
     );
 
     Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         thrust::raw_pointer_cast(&(s.R.y[0])),
-        thrust::raw_pointer_cast(&(s.U.x[0])),
-        thrust::raw_pointer_cast(&(s.U.y[0])),
-        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
         thrust::raw_pointer_cast(&(s.GetScene()[0])),
         tau_sigma
     );
 
     Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         thrust::raw_pointer_cast(&(s.R.z[0])),
-        thrust::raw_pointer_cast(&(s.U.x[0])),
-        thrust::raw_pointer_cast(&(s.U.y[0])),
-        thrust::raw_pointer_cast(&(s.U.z[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
         thrust::raw_pointer_cast(&(s.GetScene()[0])),
         tau_sigma
     );

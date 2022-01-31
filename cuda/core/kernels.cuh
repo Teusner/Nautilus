@@ -23,6 +23,15 @@ template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Uz(float* Uz, float* Pz, float* Pyz, float* Pxz, unsigned int* S);
 
 template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Uxx(float* Ux, float* Uxx);
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Uyy(float* Uy, float* Uyy);
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Uzz(float* Uz, float* Uzz);
+
+template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Rxx(float* Rx, float* Ux, float* Uy, float* Uz, unsigned int* S, float tau_sigma);
 
 template<unsigned int x, unsigned int y, unsigned int z>
@@ -114,53 +123,77 @@ __global__ void Uz(float* Uz, float* Pz, float* Pyz, float* Pxz, unsigned int* S
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Rxx(float* Rx, float* Ux, float* Uy, float* Uz, unsigned int* S, float tau_sigma) {
+__global__ void Uxx(float* Ux, float* Uxx) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
-        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
-        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
-        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
-        unsigned int material_index = S[i + j*x + k*y];
-        float a = (2 * tau_sigma - d_dt) / (2 * tau_sigma + d_dt);
-        float b = 2 * d_dt / (2 * tau_sigma + d_dt);
-        Rx[i + j*x + k*y] += a * Rx[i + j*x + k*y] - b * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uyy + Uzz);
+        Uxx[i + j*x + k*y] = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Ryy(float* Ry, float* Ux, float* Uy, float* Uz, unsigned int* S, float tau_sigma) {
+__global__ void Uyy(float* Uy, float* Uyy) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
-        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
-        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
-        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
-        unsigned int material_index = S[i + j*x + k*y];
-        float a = (2 * tau_sigma - d_dt) / (2 * tau_sigma + d_dt);
-        float b = 2 * d_dt / (2 * tau_sigma + d_dt);
-        Ry[i + j*x + k*y] += a * Ry[i + j*x + k*y] - b * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uzz);
+        Uyy[i + j*x + k*y] = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Rzz(float* Rz, float* Ux, float* Uy, float* Uz, unsigned int* S, float tau_sigma) {
+__global__ void Uzz(float* Uz, float* Uzz) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
-        float Uxx = - Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y];
-        float Uyy = - Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y];
-        float Uzz = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+        Uzz[i + j*x + k*y] = - Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y];
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rxx(float* Rx, float* Uxx, float* Uyy, float* Uzz, unsigned int* S, float tau_sigma) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
         float a = (2 * tau_sigma - d_dt) / (2 * tau_sigma + d_dt);
         float b = 2 * d_dt / (2 * tau_sigma + d_dt);
-        Rz[i + j*x + k*y] += a * Rz[i + j*x + k*y] - b * M[material_index].eta_tau_gamma_p * (Uxx + Uyy + Uzz) - 2 * M[material_index].mu_tau_gamma_s * (Uxx + Uyy);
+        Rx[i + j*x + k*y] += a * Rx[i + j*x + k*y] - b * M[material_index].eta_tau_gamma_p * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * M[material_index].mu_tau_gamma_s * (Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]);
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Ryy(float* Ry, float* Uxx, float* Uyy, float* Uzz, unsigned int* S, float tau_sigma) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        unsigned int material_index = S[i + j*x + k*y];
+        float a = (2 * tau_sigma - d_dt) / (2 * tau_sigma + d_dt);
+        float b = 2 * d_dt / (2 * tau_sigma + d_dt);
+        Ry[i + j*x + k*y] += a * Ry[i + j*x + k*y] - b * M[material_index].eta_tau_gamma_p * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * M[material_index].mu_tau_gamma_s * (Uxx[i + j*x + k*y] + Uzz[i + j*x + k*y]);
+    }
+}
+
+template<unsigned int x, unsigned int y, unsigned int z>
+__global__ void Rzz(float* Rz, float* Uxx, float* Uyy, float* Uzz, unsigned int* S, float tau_sigma) {
+    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
+    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+
+    if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
+        unsigned int material_index = S[i + j*x + k*y];
+        float a = (2 * tau_sigma - d_dt) / (2 * tau_sigma + d_dt);
+        float b = 2 * d_dt / (2 * tau_sigma + d_dt);
+        Rz[i + j*x + k*y] += a * Rz[i + j*x + k*y] - b * M[material_index].eta_tau_gamma_p * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * M[material_index].mu_tau_gamma_s * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y]);
     }
 }
 
