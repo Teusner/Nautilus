@@ -105,6 +105,8 @@ class Scene {
 
     public: unsigned int l() const { return m_frequency_domain.l(); };
 
+    public: FrequencyDomain GetFrequencyDomain() const { return m_frequency_domain; };
+
     /// FrequencyDomain
     private: FrequencyDomain m_frequency_domain;
 };

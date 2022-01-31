@@ -46,7 +46,7 @@ int main(void) {
     Solver solver;
     solver.Init(s);
     cudaProfilerStart();
-    unsigned int a = 10;
+    unsigned int a = 1000;
     for (unsigned int i = 0; i < a; i++) {
         solver.Step<x, y, z, SinEmitter>(s);
         s.m_i ++;
