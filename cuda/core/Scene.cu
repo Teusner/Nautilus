@@ -26,7 +26,7 @@ void Scene::PrintMaterials() const {
 }
 
 void Scene::AllocateMaterials(const void* symbol) const {
-    CopyMaterialToSymbol(symbol, m_materials);
+    CopyMaterialToSymbol(symbol, m_materials, m_frequency_domain.l(), m_frequency_domain.TauSigma(), m_frequency_domain);
 }
 
 void Scene::SetScene(thrust::device_vector<unsigned int> &M) {

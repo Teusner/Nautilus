@@ -23,7 +23,7 @@ class FrequencyDomain {
     public: unsigned int l() const { return m_l; };
 
     /// Tau Sigma Getter
-    public: std::vector<float> TauSigma() const { return tau_sigma; };
+    public: std::vector<float> TauSigma() const { return m_tau_sigma; };
 
     /// Optimal tau computation over omega range by giving Q_0
     public: float tau(float Q_0) const { return m_I / Q_0; };
@@ -36,7 +36,7 @@ class FrequencyDomain {
     private: unsigned int m_l;
 
     /// Relaxation constraints
-    private: std::vector<float> tau_sigma;
+    private: std::vector<float> m_tau_sigma;
 
     /// I = Q_0 * tau = cste, used to compute optimal tau for each Material
     private: float m_I;
@@ -59,28 +59,28 @@ inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega
         if (i==m_l-1) return 1 / m_min;
         return (1 / m_min + 1 / m_max) / float(std::pow(2., m_l-i-1));
     };
-    tau_sigma.resize(m_l);
+    m_tau_sigma.resize(m_l);
     if (m_l == 1) {
-        tau_sigma[0] = 2. / (m_min + m_max);
+        m_tau_sigma[0] = 2. / (m_min + m_max);
     }
     else {
-        std::generate(std::begin(tau_sigma), std::end(tau_sigma), f);
+        std::generate(std::begin(m_tau_sigma), std::end(m_tau_sigma), f);
     }
 
     // I computing
     std::vector<float> I0l;
-    std::transform(std::begin(tau_sigma), std::end(tau_sigma), std::back_inserter(I0l), [&](float t_s) { return (std::log((1 + std::pow(m_max*t_s, 2)) / (1 + std::pow(m_min*t_s, 2)))) / (2*t_s); });
+    std::transform(std::begin(m_tau_sigma), std::end(m_tau_sigma), std::back_inserter(I0l), [&](float t_s) { return (std::log((1 + std::pow(m_max*t_s, 2)) / (1 + std::pow(m_min*t_s, 2)))) / (2*t_s); });
 
     std::vector<float> I1l;
-    std::transform(std::begin(tau_sigma), std::end(tau_sigma), std::back_inserter(I1l), [&](float t_s) { return (std::atan(m_max*t_s) - std::atan(m_min*t_s) + m_min*t_s/(1+std::pow(m_min*t_s, 2)) - m_max*t_s/(1+std::pow(m_max*t_s, 2))) / (2*t_s); });
+    std::transform(std::begin(m_tau_sigma), std::end(m_tau_sigma), std::back_inserter(I1l), [&](float t_s) { return (std::atan(m_max*t_s) - std::atan(m_min*t_s) + m_min*t_s/(1+std::pow(m_min*t_s, 2)) - m_max*t_s/(1+std::pow(m_max*t_s, 2))) / (2*t_s); });
 
     unsigned int l = 0;
     unsigned int k = 1;
     auto f21 = [&] (float w) { 
-        return std::atan(w*tau_sigma[l])/tau_sigma[l] - std::atan(w*tau_sigma[k])/tau_sigma[k];
+        return std::atan(w*m_tau_sigma[l])/m_tau_sigma[l] - std::atan(w*m_tau_sigma[k])/m_tau_sigma[k];
     };
     auto I2kl = [&]() {
-        float val =  tau_sigma[l]*tau_sigma[k] / (std::pow(tau_sigma[k], 2) - std::pow(tau_sigma[l], 2)) * (f21(m_max) - f21(m_min));
+        float val =  m_tau_sigma[l]*m_tau_sigma[k] / (std::pow(m_tau_sigma[k], 2) - std::pow(m_tau_sigma[l], 2)) * (f21(m_max) - f21(m_min));
         if (k == m_l-1) { l++; k = l; }
         k++;
         return val;

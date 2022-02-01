@@ -101,8 +101,8 @@ __global__ void Uy(float* Uy, float* Py, float* Pxy, float* Pyz, unsigned int* S
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
-        float dPyy = (- Py[i + (j+2)*x + k*y] + 27 * (Py[i + (j+1)*x + k*y] - Py[i + j*x + k*y]) + Py[i + (j-1)*x + k*y]) * d_alpha[0];
-        float dPxy = (- Pxy[i+1 + j*x + k*y] + 27 * (Pxy[i + j*x + k*y] - Pxy[i-1 + j*x + k*y]) + Pxy[i-2 + j*x + k*y]) * d_alpha[1];
+        float dPyy = (- Py[i + (j+2)*x + k*y] + 27 * (Py[i + (j+1)*x + k*y] - Py[i + j*x + k*y]) + Py[i + (j-1)*x + k*y]) * d_alpha[1];
+        float dPxy = (- Pxy[i+1 + j*x + k*y] + 27 * (Pxy[i + j*x + k*y] - Pxy[i-1 + j*x + k*y]) + Pxy[i-2 + j*x + k*y]) * d_alpha[0];
         float dPyz = (- Pyz[i + j*x + (k+1)*y] + 27 * (Pyz[i + j*x + k*y] - Pyz[i + j*x + (k-1)*y]) + Pyz[i + j*x + (k-2)*y]) * d_alpha[2];
         unsigned int material_index = S[i + j*x + k*y];
         Uy[i + j*x + k*y] += d_dt * M[material_index].inv_rho * (dPyy + dPxy + dPyz);
@@ -116,9 +116,9 @@ __global__ void Uz(float* Uz, float* Pz, float* Pyz, float* Pxz, unsigned int* S
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
-        float dPzz = (- Pz[i + j*x + (k+2)*y] + 27 * (Pz[i + j*x + (k+1)*y] - Pz[i + j*x + k*y]) + Pz[i + j*x + (k-1)*y]) * d_alpha[0];
-        float dPyz = (- Pyz[i+1 + j*x + k*y] + 27 * (Pyz[i + j*x + k*y] - Pyz[i-1 + j*x + k*y]) + Pyz[i-2 + j*x + k*y]) * d_alpha[1];
-        float dPxz = (- Pxz[i + (j+1)*x + k*y] + 27 * (Pxz[i + j*x + k*y] - Pxz[i + (j-1)*x + k*y]) + Pxz[i + (j-2)*x + k*y]) * d_alpha[2];
+        float dPzz = (- Pz[i + j*x + (k+2)*y] + 27 * (Pz[i + j*x + (k+1)*y] - Pz[i + j*x + k*y]) + Pz[i + j*x + (k-1)*y]) * d_alpha[2];
+        float dPyz = (- Pyz[i+1 + j*x + k*y] + 27 * (Pyz[i + j*x + k*y] - Pyz[i-1 + j*x + k*y]) + Pyz[i-2 + j*x + k*y]) * d_alpha[0];
+        float dPxz = (- Pxz[i + (j+1)*x + k*y] + 27 * (Pxz[i + j*x + k*y] - Pxz[i + (j-1)*x + k*y]) + Pxz[i + (j-2)*x + k*y]) * d_alpha[1];
         unsigned int material_index = S[i + j*x + k*y];
         Uz[i + j*x + k*y] += d_dt * M[material_index].inv_rho * (dPzz + dPyz + dPxz);
     }

@@ -27,7 +27,7 @@ inline void Solver::Init(Scene &s) const {
     cudaMemcpyToSymbol(d_l, &l, sizeof(unsigned int), 0, cudaMemcpyHostToDevice);
     std::vector<float> tau_sigma = s.GetFrequencyDomain().TauSigma();
     cudaMemcpyToSymbol(d_tau_sigma, tau_sigma.data(), sizeof(float)*l);
-    std::vector<float> alpha = {1 / (24*s.dX()), 1 / (24*s.dY()), 1 / (24*s.dZ())};
+    std::vector<float> alpha = {1.f / (24.f*s.dX()), 1.f / (24.f*s.dY()), 1.f / (24.f*s.dZ())};
     cudaMemcpyToSymbol(d_alpha, alpha.data(), sizeof(float)*3);
 }
 

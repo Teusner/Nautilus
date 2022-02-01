@@ -2,8 +2,9 @@
 #include <vector>
 #include "core/Material.cuh"
 #include "core/Module.cuh"
+#include "core/FrequencyDomain.cuh"
 
-void CopyMaterialToSymbol(const void* symbol, const std::vector<Material> &materials);
+void CopyMaterialToSymbol(const void* symbol, const std::vector<Material> &materials, unsigned int l, std::vector<float> tau_sigma, FrequencyDomain fd);
 
 struct CheckUndefinedMaterial {
     const unsigned int size;

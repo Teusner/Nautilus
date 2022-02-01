@@ -9,10 +9,6 @@
 #include <thrust/transform.h>
 #include <thrust/iterator/counting_iterator.h>
 
-#define N 10
-
-__constant__ DeviceMaterial M[N];
-
 
 #define CUDA_CHECK(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
