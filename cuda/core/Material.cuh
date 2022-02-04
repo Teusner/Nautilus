@@ -8,19 +8,85 @@
 
 #include "FrequencyDomain.cuh"
 
+template<typename T>
 struct DeviceMaterial {
-    float inv_rho;
-    float eta_tau_epsilon_p;
-    float eta_tau_gamma_p;
-    float mu_tau_epsilon_s;
-    float mu_tau_gamma_s;
+    T inv_rho;
+    T eta_tau_epsilon_p;
+    T eta_tau_gamma_p;
+    T mu_tau_epsilon_s;
+    T mu_tau_gamma_s;
 };
+
+template<typename Vector>
+struct DeviceMaterials {
+
+    /// Type Definitions
+    typedef typename Vector::value_type T;
+    typedef thrust::zip_iterator<
+        thrust::tuple<
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator,
+            typename Vector::iterator
+        >
+    > iterator;
+
+    /// Constructor
+    DeviceMaterials(std::size_t size_) : size(size_), inv_rho(size), eta_tau_p(size), eta_tau_gamma_p(size), mu_tau_s(size), mu_tau_gamma_s(size) {};
+
+    /// Member variables
+    std::size_t size;
+    Vector inv_rho;
+    Vector eta_tau_p;
+    Vector eta_tau_gamma_p;
+    Vector mu_tau_s;
+    Vector mu_tau_gamma_s;
+
+    /// Copy operator
+    template <typename TOther>
+    DeviceMaterials<Vector>& operator=(const TOther &other) {
+        inv_rho = other.inv_rho;
+        eta_tau_p = other.eta_tau_p;
+        eta_tau_gamma_p = other.eta_tau_gamma_p;
+        mu_tau_s = other.mu_tau_s;
+        mu_tau_gamma_s = other.mu_tau_gamma_s;
+        return *this;
+    }
+
+    /// Begin iterator
+    iterator begin() {
+        return thrust::make_zip_iterator(thrust::make_tuple(inv_rho.begin(),eta_tau_p.begin(),eta_tau_gamma_p.begin(),mu_tau_s.begin(),mu_tau_gamma_s.begin()));
+    }
+
+    /// End iterator
+    iterator end() {
+        return thrust::make_zip_iterator(thrust::make_tuple(inv_rho.end(),eta_tau_p.end(),eta_tau_gamma_p.end(),mu_tau_s.end(),mu_tau_gamma_s.end()));
+    }
+
+    /// Array of structure getter at index
+    struct Ref {
+        T &inv_rho; T &eta_tau_p; T &eta_tau_gamma_p; T &mu_tau_s; T &mu_tau_gamma_s;
+        Ref(iterator z) : inv_rho(thrust::get<0>(z)), eta_tau_p(thrust::get<1>(z)), eta_tau_gamma_p(thrust::get<2>(z)), mu_tau_s(thrust::get<3>(z)), mu_tau_gamma_s(thrust::get<4>(z)) {}
+    };
+
+    void push_back(DeviceMaterial<T> dm) {
+        inv_rho.push_back(dm.inv_rho);
+        eta_tau_p.push_back(dm.eta_tau_p);
+        eta_tau_gamma_p.push_back(dm.eta_tau_gamma_p);
+        mu_tau_s.push_back(dm.mu_tau_s);
+        mu_tau_gamma_s.push_back(dm.mu_tau_gamma_s);
+    };
+};
+
+
+
 
 
 class Material {
     public:
-        __host__ Material() : Material(1000, 1500, 100) {};
-        __host__ Material(float rho, float cp, float Qp) : m_rho(rho), m_cp(cp), m_Qp(Qp) {};
+        __host__ Material() : Material(1000, 1500, 100, 0, 1) {};
+        __host__ Material(float rho, float cp, float Qp, float cs, float Qs) : m_rho(rho), m_cp(cp), m_Qp(Qp), m_cs(cs), m_Qs(Qs) {};
         __host__ ~Material() = default;
 
         __host__ float Rho() const { return m_rho; };
@@ -31,7 +97,8 @@ class Material {
 
         __host__ void CopyToConstant(const void* symbol, unsigned int index) const;
 
-        __host__ DeviceMaterial GetDeviceMaterial(FrequencyDomain fd) const;
+        template<typename T>
+        __host__ DeviceMaterial<T> GetDeviceMaterial(FrequencyDomain fd) const;
 
     private:
         /// Qp and Qs could be set for each SLS in a Material
@@ -39,8 +106,8 @@ class Material {
         float m_rho;
         float m_cp;
         float m_Qp;
-        float m_cs = 0;
-        float m_Qs = 0;
+        float m_cs = 0.f;
+        float m_Qs = 0.f;
 };
 
 std::ostream &operator<<(std::ostream &os, const Material &m);
@@ -64,8 +131,8 @@ std::ostream &operator<<(std::ostream &os, const Material *m);
 
 //     free(temp_h_m);
 // }
-
-inline DeviceMaterial Material::GetDeviceMaterial(FrequencyDomain fd) const {
+template<typename T>
+DeviceMaterial<T> Material::GetDeviceMaterial(FrequencyDomain fd) const {
     /// Getting l
     unsigned int l = fd.l();
 
@@ -79,25 +146,19 @@ inline DeviceMaterial Material::GetDeviceMaterial(FrequencyDomain fd) const {
     std::cout << "]\n";
 
     /// Tau epsilon p computing
-    std::vector<float> tau_p;
-    std::transform(std::begin(tau_sigma), std::end(tau_sigma), std::back_inserter(tau_p), [=] (float t_s) { return fd.tau(m_Qp) / t_s; });
-    float tau_epsilon_p = std::accumulate(std::begin(tau_p), std::end(tau_p), 0.f, std::plus<float>());
-
-    // std::cout << "Tau P : [";
-    // std::copy(std::begin(tau_p), std::end(tau_p), std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << std::endl << "Tau epsilon p : " << tau_epsilon_p << std::endl;
+    float tau_p = fd.tau(m_Qp);
+    std::cout << "Tau_p = " << tau_p << std::endl;;
 
     /// Tau epsilon s computing
-    std::vector<float> tau_s;
-    std::transform(std::begin(tau_sigma), std::end(tau_sigma), std::back_inserter(tau_s), [=] (float t_s) { return fd.tau(m_Qs) / t_s; });
-    float tau_epsilon_s = std::accumulate(std::begin(tau_s), std::end(tau_s), 0, std::plus<float>());
+    float tau_s = fd.tau(m_Qs);
+    std::cout << "Tau_s = " << tau_s << std::endl;;
 
-    float tau_gamma_p = 1 - l + tau_epsilon_p;
-    float tau_gamma_s = 1 - l + tau_epsilon_s;
+    // float tau_gamma_p = 1 - float(l) + tau_epsilon_p;
+    // float tau_gamma_s = 1 - float(l) + tau_epsilon_s;
 
-    std::cout << tau_gamma_p << " " << tau_gamma_s << std::endl;
+    // std::cout << tau_gamma_p << " " << tau_gamma_s << std::endl;
 
-    return DeviceMaterial {1 / m_rho, m_rho * powf(m_cp, 2.) * tau_epsilon_p, m_rho * powf(m_cp, 2.) * tau_gamma_p, m_rho * powf(m_cs, 2) * tau_epsilon_s, m_rho * powf(m_cs, 2) * tau_gamma_s};
+    return DeviceMaterial<float>{1 / m_rho, m_rho * powf(m_cp, 2.) * tau_p, m_rho * powf(m_cp, 2.) * tau_p, m_rho * powf(m_cs, 2) * tau_s, m_rho * powf(m_cs, 2) * tau_s};
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Material &m) {

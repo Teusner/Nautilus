@@ -1,12 +1,12 @@
-#include "Constants.cuh"
-
 #include "Scene.cuh"
+#include "FrequencyDomain.cuh"
 #include "core/Material.cuh"
 #include "utils/constant_memory.cuh"
 
 #include <thrust/device_vector.h>
 
 #include <stdexcept>
+
 
 Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z,
                 const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain
@@ -52,24 +52,20 @@ void Scene::TriggerNextEvent() {
 }
 
 void Scene::Init() const {
-    /// Allocating Time Step
-    cudaMemcpyToSymbol(d_dt, &m_dt, sizeof(float), 0, cudaMemcpyHostToDevice);
-
     /// Allocating alpha coefficients
-    std::vector<float> alpha = {1.f / (24.f*m_dx.x), 1.f / (24.f*m_dx.y), 1.f / (24.f*m_dx.z)};
-    cudaMemcpyToSymbol(d_alpha, alpha.data(), sizeof(float)*3, 0, cudaMemcpyHostToDevice);
-
-    /// Allocating Relaxation Constraints Number
-    unsigned int l = m_frequency_domain.l();
-    cudaMemcpyToSymbol(d_l, &l, sizeof(unsigned int), 0, cudaMemcpyHostToDevice);
+    thrust::device_vector<float> m_alpha(3);
+    m_alpha[0] = 1.f / (24.f*m_dx.x);
+    m_alpha[1] = 1.f / (24.f*m_dx.y);
+    m_alpha[2] = 1.f / (24.f*m_dx.z);
 
     /// Allocating DeviceMaterial
-    unsigned int n = m_materials.size();
-    std::vector<DeviceMaterial> dm;
-    std::transform(std::begin(m_materials), std::end(m_materials), std::back_inserter(dm), [&] (Material m) { return m.GetDeviceMaterial(m_frequency_domain); });
-    cudaMemcpyToSymbol(M, dm.data(), sizeof(DeviceMaterial)*n);
+    FrequencyDomain fd = m_frequency_domain;
+    DeviceMaterials<thrust::device_vector<float>> m_device_materials;
+    for (const auto & m : m_materials) {
+        m_device_materials.push_back(m.GetDeviceMaterial(fd))
+    }
 
     /// Allocating Tau Sigma
     std::vector<float> tau_sigma = m_frequency_domain.TauSigma();
-    cudaMemcpyToSymbol(d_tau_sigma, tau_sigma.data(), sizeof(float)*l, 0, cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(d_tau_sigma, tau_sigma.data(), sizeof(float)*tau_sigma.size());
 }

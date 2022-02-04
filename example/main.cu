@@ -25,10 +25,11 @@ int main(void) {
     constexpr float dt = 0.1;
 
     // FrequencyDomain
-    float omega_min = 2*M_PI*10.;
-    float omega_max = 2*M_PI*75.;
-    const unsigned int n = 3;
-    FrequencyDomain freq_dom(omega_min, omega_max, n);
+    float omega_min = 2*M_PI*2.;
+    float omega_max = 2*M_PI*25.;
+    std::vector<float> tau_sigma = {0.0057653, 0.021495};
+    const unsigned int l = 2;
+    FrequencyDomain freq_dom(omega_min, omega_max, tau_sigma);
 
     Scene s(x, y, z, dx, dy, dz, dt, freq_dom);
 
@@ -42,7 +43,7 @@ int main(void) {
     cudaProfilerStart();
     unsigned int a = 1000;
     for (unsigned int i = 0; i < a; i++) {
-        s.Step<x, y, z, SinEmitter>();
+        s.Step<x, y, z, l, SinEmitter>();
         s.m_i ++;
     }
     cudaProfilerStop();
