@@ -14,9 +14,9 @@
 
 
 int main(void) {
-    constexpr unsigned int x = 100;
-    constexpr unsigned int y = 100;
-    constexpr unsigned int z = 100;
+    constexpr unsigned int x = 10;
+    constexpr unsigned int y = 10;
+    constexpr unsigned int z = 10;
 
     constexpr float dx = 0.1;
     constexpr float dy = 0.1;
@@ -41,8 +41,9 @@ int main(void) {
     s.emitters.push_back(e);
 
     cudaProfilerStart();
-    unsigned int a = 1000;
+    unsigned int a = 10;
     for (unsigned int i = 0; i < a; i++) {
+        std::cout << "Step\n";
         s.Step<x, y, z, l, SinEmitter>();
         s.m_i ++;
     }

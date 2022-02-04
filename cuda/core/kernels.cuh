@@ -118,7 +118,7 @@ __global__ void Uz(float dt, float* Uz, float* Pz, float* Pyz, float* Pxz, unsig
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uxx(float* Ux, float* Uxx, float alpha_x) {
+__global__ void Uxx(float alpha_x, float* Ux, float* Uxx) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -129,7 +129,7 @@ __global__ void Uxx(float* Ux, float* Uxx, float alpha_x) {
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uyy(float* Uy, float* Uyy, float alpha_y) {
+__global__ void Uyy(float alpha_y, float* Uy, float* Uyy) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
@@ -140,7 +140,7 @@ __global__ void Uyy(float* Uy, float* Uyy, float alpha_y) {
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Uzz(float* Uz, float* Uzz, float alpha_z) {
+__global__ void Uzz(float alpha_z, float* Uz, float* Uzz) {
     unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
     unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
     unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;

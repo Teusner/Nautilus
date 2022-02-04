@@ -188,27 +188,34 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(m_alpha[0]))
     );
 
+
+    std::cout << "P..\n";
     thrust::device_vector<float> uxx(x*y*z);
+    std::cout << "Q..\n";
+
     thrust::device_vector<float> uyy(x*y*z);
     thrust::device_vector<float> uzz(x*y*z);
 
     Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_alpha[0],
         thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(uxx[0])),
-        m_alpha[0]
+        thrust::raw_pointer_cast(&(uxx[0]))
     );
 
+
     Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_alpha[1],
         thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(uyy[0])),
-        m_alpha[1]
+        thrust::raw_pointer_cast(&(uyy[0]))
     );
 
     Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_alpha[2],
         thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(uzz[0])),
-        m_alpha[2]
+        thrust::raw_pointer_cast(&(uzz[0]))
     );
+
+    std::cout << "R..\n";
 
     Rxx<x, y, z, l><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
@@ -275,6 +282,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
+
+    std::cout << "P..\n";
 
     Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,

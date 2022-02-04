@@ -10,7 +10,7 @@
 
 Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z,
                 const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain
-            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), R(x*y*z*frequency_domain.l())
+            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), R(x*y*z*frequency_domain.l())
 {
     m_materials = std::vector<Material>(1, Material());
     m_M = thrust::device_vector<float>(x * y * z, 0);
@@ -52,10 +52,9 @@ void Scene::TriggerNextEvent() {
 }
 
 void Scene::Init() {
-    /// Allocating alpha coefficients
-    m_alpha[0] = 1.f / (24.f*m_dx.x);
-    m_alpha[1] = 1.f / (24.f*m_dx.y);
-    m_alpha[2] = 1.f / (24.f*m_dx.z);
+    m_alpha[0] = 1.f / (24.f * m_dx.x);
+    m_alpha[1] = 1.f / (24.f * m_dx.y);
+    m_alpha[2] = 1.f / (24.f * m_dx.z);
 
     /// Allocating DeviceMaterial
     FrequencyDomain fd = m_frequency_domain;
@@ -66,7 +65,7 @@ void Scene::Init() {
 
     /// Allocating Tau Sigma
     std::vector<float> tau_sigma = m_frequency_domain.TauSigma();
-    m_tau_sigma.resize(tau_sigma.size());
-    thrust::copy(m_tau_sigma.begin(), m_tau_sigma.end(), tau_sigma.begin());
-    // m_tau_sigma = thrust::device_vector<float>(tau_sigma.begin(), tau_sigma.end());
+    // m_tau_sigma.resize(tau_sigma.size());
+    // thrust::copy(m_tau_sigma.begin(), m_tau_sigma.end(), tau_sigma.begin());
+    m_tau_sigma = thrust::device_vector<float>(tau_sigma.begin(), tau_sigma.end());
 }
