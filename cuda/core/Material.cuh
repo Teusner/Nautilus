@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cmath>
 
 #include <thrust/device_vector.h>
@@ -8,7 +7,6 @@
 #include <iostream>
 
 #include "FrequencyDomain.cuh"
-#define N 10
 
 struct DeviceMaterial {
     float inv_rho;
@@ -33,7 +31,7 @@ class Material {
 
         __host__ void CopyToConstant(const void* symbol, unsigned int index) const;
 
-        __host__ DeviceMaterial GetDeviceMaterial(unsigned int l, std::vector<float> tau_sigma, FrequencyDomain fd) const;
+        __host__ DeviceMaterial GetDeviceMaterial(FrequencyDomain fd) const;
 
     private:
         /// Qp and Qs could be set for each SLS in a Material
@@ -51,28 +49,34 @@ std::ostream &operator<<(std::ostream &os, const Material *m);
 
 /// Implementation
 
-/// Really necessary ?
-inline void Material::CopyToConstant(const void* symbol, unsigned int index) const {
-    // Copying one material on constant memory
-    DeviceMaterial *temp_h_m = (DeviceMaterial*) malloc(sizeof(DeviceMaterial) * N);
-    cudaMemcpyFromSymbol(temp_h_m, symbol, sizeof(DeviceMaterial)*N);
+// /// Really necessary ?
+// inline void Material::CopyToConstant(const void* symbol, unsigned int index) const {
+//     // Copying one material on constant memory
+//     DeviceMaterial *temp_h_m = (DeviceMaterial*) malloc(sizeof(DeviceMaterial) * N);
+//     cudaMemcpyFromSymbol(temp_h_m, symbol, sizeof(DeviceMaterial)*N);
 
-    // Filling the i-th DeviceMaterial
-    temp_h_m[index].inv_rho = 1 / m_rho;
-    temp_h_m[index].eta_tau_gamma_p = 1.2 - 1;
-    temp_h_m[index].mu_tau_gamma_s = 1.2 - 1;
+//     // Filling the i-th DeviceMaterial
+//     temp_h_m[index].inv_rho = 1 / m_rho;
+//     temp_h_m[index].eta_tau_gamma_p = 1.2 - 1;
+//     temp_h_m[index].mu_tau_gamma_s = 1.2 - 1;
 
-    cudaMemcpyToSymbol(symbol, temp_h_m, sizeof(DeviceMaterial)*N);
+//     cudaMemcpyToSymbol(symbol, temp_h_m, sizeof(DeviceMaterial)*N);
 
-    free(temp_h_m);
-}
+//     free(temp_h_m);
+// }
 
-inline DeviceMaterial Material::GetDeviceMaterial(unsigned int l, std::vector<float> tau_sigma, FrequencyDomain fd) const {
+inline DeviceMaterial Material::GetDeviceMaterial(FrequencyDomain fd) const {
+    /// Getting l
+    unsigned int l = fd.l();
+
+    /// Getting Tau Sigma
+    std::vector<float> tau_sigma = fd.TauSigma();
+
     /// Tau Sigma showing
     std::cout << "L: " << l << std::endl;
-    std::cout << "Tau Sigma: ";
-    std::copy(std::begin(tau_sigma), std::begin(tau_sigma), std::ostream_iterator<float>(std::cout, " "));
-    std::cout << std::endl;
+    std::cout << "Tau Sigma: [";
+    std::copy(std::begin(tau_sigma), std::end(tau_sigma), std::ostream_iterator<float>(std::cout, ", "));
+    std::cout << "]\n";
 
     /// Tau epsilon p computing
     std::vector<float> tau_p;

@@ -8,45 +8,27 @@
 #include "Event.h"
 #include "Module.cuh"
 #include "FrequencyDomain.cuh"
+#include "kernels.cuh"
 
 
 class Scene {
     /// Constructor with a dimension
     public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain);
 
+
+
+    /// ### Scene Dimensions
     /// Scene Dimension Getter
     public: dim3 Dims() const { return m_d; };
 
-    /// Add a material to the Scene
-    public: void AddMaterial(Material m);
+    /// X Getter
+    public: unsigned int X() const { return m_d.x; };
 
-    /// Print material in the scene
-    public: void PrintMaterials() const;
+    /// Y Getter
+    public: unsigned int Y() const { return m_d.y; };
 
-    /// Copy materials to constant memory
-    public: void AllocateMaterials(const void* symbol) const;
-
-    /// Scene Matrix Getter
-    public: thrust::device_vector<unsigned int> GetScene() const { return m_M; };
-
-    /// Scene Matrix Setter
-    public: void SetScene(thrust::device_vector<unsigned int> &M);
-
-    /// Simulation Time
-    /// Return the current simulation time
-    public: double Time() const { return double(m_dt * m_i); };
-
-    /// Time Step Getter
-    public: float TimeStep() const { return m_dt; };
-
-    /// X-Step Getter
-    public: float X() const { return m_d.x; };
-
-    /// Y-Step Getter
-    public: float Y() const { return m_d.y; };
-
-    /// Z-Step Getter
-    public: float Z() const { return m_d.z; };
+    /// Z Getter
+    public: unsigned int Z() const { return m_d.z; };
 
     /// X-Step Getter
     public: float dX() const { return m_dx.x; };
@@ -57,40 +39,61 @@ class Scene {
     /// Z-Step Getter
     public: float dZ() const { return m_dx.z; };
 
+    /// Scene dimension
+    private: const dim3 m_d;
+
+    /// Spatial step
+    private: const float3 m_dx;
+
+
+
+    /// ### Material and Scene
+    /// Add a material to the Scene
+    public: void AddMaterial(Material m);
+
+    /// Print material in the scene
+    public: void PrintMaterials() const;
+
+    /// Scene Matrix Getter
+    public: thrust::device_vector<unsigned int> GetScene() const { return m_M; };
+
+    /// Scene Matrix Setter
+    public: void SetScene(thrust::device_vector<unsigned int> &M);
+
+    /// Vector of Material
+    private: std::vector<Material> m_materials;
+
+    /// Scene description vector
+    private: thrust::device_vector<unsigned int> m_M;
+
+
+
+    /// ### Simulation Time
+    /// Return the current simulation time
+    public: double Time() const { return double(m_dt * m_i); };
+
+    /// Time Step Getter
+    public: float TimeStep() const { return m_dt; };
+
     /// Time Increment
     /// Return the current time increment
     public: unsigned int Increment() const { return m_i; };
-
-    /// Next Event Getter
-    public: Event GetNextEvent() const { return m_events.top(); };
-
-    /// Next Event Trigger
-    public: void TriggerNextEvent();
 
     /// Time Step
     private: double m_dt;
     
     /// Time Increment
     public: unsigned int m_i;
-    
-    /// Scene dimension
-    private: const dim3 m_d;
 
-    /// X-step
-    private: const float3 m_dx;
 
-    /// Priority queue handling Events in priority order
-    private : std::priority_queue<Event, std::vector<Event>, std::greater<Event>> m_events;
 
-    /// Vector of Material
-    private: std::vector<Material> m_materials;
-
+    /// ### Emitters and Recievers
     /// Vector of Emmitters
     public: thrust::device_vector<SinEmitter> emitters;
 
-    /// Scene description vector
-    private: thrust::device_vector<unsigned int> m_M;
 
+    
+    /// ### Fields
     /// Pressure Field
     public: PressureField<thrust::device_vector<float>> P;
 
@@ -101,12 +104,190 @@ class Scene {
     public: MemoryField<thrust::device_vector<float>> R;
 
     /// Emitter Pressure Field
-    public: thrust::device_vector<float> F;
+    public: thrust::device_vector<float> E;
 
+
+
+    /// ### Frequency Domain
+    /// Number of relaxation constraints getter
     public: unsigned int l() const { return m_frequency_domain.l(); };
 
+    /// FrequencyDomain Getter
     public: FrequencyDomain GetFrequencyDomain() const { return m_frequency_domain; };
 
     /// FrequencyDomain
     private: FrequencyDomain m_frequency_domain;
+
+
+
+    /// ### Event Based Simulation
+    /// Next Event Getter
+    public: Event GetNextEvent() const { return m_events.top(); };
+
+    /// Next Event Trigger
+    public: void TriggerNextEvent();
+
+    /// Initialize the Scene
+    public: void Init() const;
+
+    /// Step
+    public: template<unsigned int x, unsigned int y, unsigned int z, typename T> void Step();
+
+    /// Priority queue handling Events in priority order
+    private : std::priority_queue<Event, std::vector<Event>, std::greater<Event>> m_events;
+};
+
+
+/// Implementation
+
+template<unsigned int x, unsigned int y, unsigned int z, typename T>
+void Scene::Step() {
+
+    // Emitter Field computing
+    F<x, y, z, T><<<1, 1>>>(m_dt*m_i, thrust::raw_pointer_cast(&(emitters[0])), thrust::raw_pointer_cast(&(E[0])));
+
+    dim3 ThreadPerBlock(4, 4, 4);
+    dim3 GridDimension(x / ThreadPerBlock.x, y / ThreadPerBlock.y, z / ThreadPerBlock.z);
+
+    Ux<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(P.x[0])),
+        thrust::raw_pointer_cast(&(P.xy[0])),
+        thrust::raw_pointer_cast(&(P.xz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Uy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(P.x[0])),
+        thrust::raw_pointer_cast(&(P.xy[0])),
+        thrust::raw_pointer_cast(&(P.xz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Uz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(P.x[0])),
+        thrust::raw_pointer_cast(&(P.xy[0])),
+        thrust::raw_pointer_cast(&(P.xz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    thrust::device_vector<float> uxx(x*y*z);
+    thrust::device_vector<float> uyy(x*y*z);
+    thrust::device_vector<float> uzz(x*y*z);
+
+    Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(uxx[0]))
+    );
+
+    Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(uyy[0]))
+    );
+
+    Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(uzz[0]))
+    );
+
+    Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(R.x[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(R.y[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(R.z[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Rxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(R.xy[0])),
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Ryz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(R.yz[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Rxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(R.xz[0])),
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(P.x[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
+        thrust::raw_pointer_cast(&(R.x[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(E[0]))
+    );
+
+    Pyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(P.y[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
+        thrust::raw_pointer_cast(&(R.y[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(E[0]))
+    );
+
+    Pzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(P.z[0])),
+        thrust::raw_pointer_cast(&(uxx[0])),
+        thrust::raw_pointer_cast(&(uyy[0])),
+        thrust::raw_pointer_cast(&(uzz[0])),
+        thrust::raw_pointer_cast(&(R.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(E[0]))
+    );
+
+    Pxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(P.xy[0])),
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(R.xy[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Pyz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(P.yz[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(R.yz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
+
+    Pxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        thrust::raw_pointer_cast(&(P.xz[0])),
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(R.xz[0])),
+        thrust::raw_pointer_cast(&(m_M[0]))
+    );
 };

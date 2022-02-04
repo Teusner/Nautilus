@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Constants.cuh"
 #include "kernels.cuh"
 #include "Scene.cuh"
 

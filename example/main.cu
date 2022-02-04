@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "core/Solver.cuh"
 #include "core/FrequencyDomain.cuh"
 #include "core/kernels.cuh"
 #include <thrust/device_vector.h>
@@ -32,23 +31,21 @@ int main(void) {
     const unsigned int n = 3;
     FrequencyDomain freq_dom(omega_min, omega_max, n);
     float tau = freq_dom.tau(Q_0);
-    std::cout << "Tau_s: " << freq_dom.TauSigma()[0] << " Tau: " << tau << std::endl;
+    std::cout << "Tau_s: " << freq_dom.TauSigma()[1] << " Tau: " << tau << std::endl;
 
     Scene s(x, y, z, dx, dy, dz, dt, freq_dom);
 
     thrust::device_vector<unsigned int> s_M(x * y * z, 0);
     s.SetScene(s_M);
-    s.AllocateMaterials(M);
+    s.Init();
 
     SinEmitter e(10, 10, 10);
     s.emitters.push_back(e);
 
-    Solver solver;
-    solver.Init(s);
     cudaProfilerStart();
     unsigned int a = 1000;
     for (unsigned int i = 0; i < a; i++) {
-        solver.Step<x, y, z, SinEmitter>(s);
+        s.Step<x, y, z, SinEmitter>();
         s.m_i ++;
     }
     cudaProfilerStop();

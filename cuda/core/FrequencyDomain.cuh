@@ -10,6 +10,8 @@ class FrequencyDomain {
     /// Default Constructor
     public: FrequencyDomain() {};
 
+    public: FrequencyDomain(const FrequencyDomain& fd);
+
     /// Constructor with omega range and the number of relaxation variables
     public: FrequencyDomain(const float omega_min, const float omega_max, unsigned int l_ = 5);
 
@@ -43,6 +45,13 @@ class FrequencyDomain {
 };
 
 /// Implementation
+inline FrequencyDomain::FrequencyDomain(const FrequencyDomain& fd) {
+    m_min = fd.OmegaMin();
+    m_max = fd.OmegaMax();
+    m_l = fd.l();
+    m_tau_sigma = fd.TauSigma();
+}
+
 inline FrequencyDomain::FrequencyDomain(const float omega_min, const float omega_max, unsigned int l_) {
     m_l = l_;
     m_min = std::min(omega_min, omega_max);

@@ -1,15 +1,10 @@
 #pragma once
 
+#include "Constants.cuh"
 #include <core/Material.cuh>
 #include <core/Module.cuh>
 #include <thrust/random.h>
-#define N 10
 
-__constant__ DeviceMaterial M[N];
-__constant__ unsigned int d_l;
-__constant__ float d_dt;
-__constant__ float d_tau_sigma[N];
-__constant__ float d_alpha[3];
 
 
 template<unsigned int x, unsigned int y, unsigned int z>
