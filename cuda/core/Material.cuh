@@ -83,16 +83,17 @@ inline DeviceMaterial Material::GetDeviceMaterial(FrequencyDomain fd) const {
     std::transform(std::begin(tau_sigma), std::end(tau_sigma), std::back_inserter(tau_p), [=] (float t_s) { return fd.tau(m_Qp) / t_s; });
     float tau_epsilon_p = std::accumulate(std::begin(tau_p), std::end(tau_p), 0.f, std::plus<float>());
 
+    // std::cout << "Tau P : [";
     // std::copy(std::begin(tau_p), std::end(tau_p), std::ostream_iterator<float>(std::cout, " "));
-    std::cout << std::endl;
+    // std::cout << std::endl << "Tau epsilon p : " << tau_epsilon_p << std::endl;
 
     /// Tau epsilon s computing
     std::vector<float> tau_s;
     std::transform(std::begin(tau_sigma), std::end(tau_sigma), std::back_inserter(tau_s), [=] (float t_s) { return fd.tau(m_Qs) / t_s; });
     float tau_epsilon_s = std::accumulate(std::begin(tau_s), std::end(tau_s), 0, std::plus<float>());
 
-    float tau_gamma_p = 1 - fd.l() + tau_epsilon_p;
-    float tau_gamma_s = 1 - fd.l() + tau_epsilon_s;
+    float tau_gamma_p = 1 - l + tau_epsilon_p;
+    float tau_gamma_s = 1 - l + tau_epsilon_s;
 
     std::cout << tau_gamma_p << " " << tau_gamma_s << std::endl;
 

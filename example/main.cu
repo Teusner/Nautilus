@@ -27,11 +27,8 @@ int main(void) {
     // FrequencyDomain
     float omega_min = 2*M_PI*10.;
     float omega_max = 2*M_PI*75.;
-    float Q_0 = 18;
     const unsigned int n = 3;
     FrequencyDomain freq_dom(omega_min, omega_max, n);
-    float tau = freq_dom.tau(Q_0);
-    std::cout << "Tau_s: " << freq_dom.TauSigma()[1] << " Tau: " << tau << std::endl;
 
     Scene s(x, y, z, dx, dy, dz, dt, freq_dom);
 
