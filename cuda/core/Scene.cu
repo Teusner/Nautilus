@@ -10,7 +10,7 @@
 
 Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z,
                 const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain
-            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), dU(x*y*z), R(x*y*z*frequency_domain.l())
+            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_device_materials(0), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), dU(x*y*z), R(x*y*z*frequency_domain.l())
 {
     m_materials = std::vector<Material>(1, Material());
     m_M = thrust::device_vector<float>(x * y * z, 0);
@@ -58,7 +58,6 @@ void Scene::Init() {
 
     /// Allocating DeviceMaterial
     FrequencyDomain fd = m_frequency_domain;
-    DeviceMaterials<thrust::device_vector<float>> m_device_materials;
     for (const auto &m : m_materials) {
         m_device_materials.push_back(m.GetDeviceMaterial<float>(fd));
     }

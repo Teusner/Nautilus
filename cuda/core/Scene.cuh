@@ -190,23 +190,23 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(m_alpha[0]))
     );
 
-    // Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-    //     m_alpha[0],
-    //     thrust::raw_pointer_cast(&(U.x[0])),
-    //     thrust::raw_pointer_cast(&(dU.x[0]))
-    // );
+    Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_alpha[0],
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(dU.x[0]))
+    );
 
-    // Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-    //     m_alpha[1],
-    //     thrust::raw_pointer_cast(&(U.y[0])),
-    //     thrust::raw_pointer_cast(&(dU.y[0]))
-    // );
+    Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_alpha[1],
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(dU.y[0]))
+    );
 
-    // Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-    //     m_alpha[2],
-    //     thrust::raw_pointer_cast(&(U.z[0])),
-    //     thrust::raw_pointer_cast(&(dU.z[0]))
-    // );
+    Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_alpha[2],
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(dU.z[0]))
+    );
 
     Rxx<x, y, z, l><<<GridDimension, ThreadPerBlock>>>(
         m_dt,

@@ -32,9 +32,6 @@ struct DeviceMaterials {
         >
     > iterator;
 
-    /// Default Constructor
-    DeviceMaterials() : DeviceMaterials(0) {};
-
     /// Constructor
     DeviceMaterials(std::size_t size_) : size(size_), inv_rho(size), eta_tau_p(size), eta_tau_gamma_p(size), mu_tau_s(size), mu_tau_gamma_s(size) {};
 
