@@ -51,9 +51,8 @@ void Scene::TriggerNextEvent() {
     m_events.pop();
 }
 
-void Scene::Init() const {
+void Scene::Init() {
     /// Allocating alpha coefficients
-    thrust::device_vector<float> m_alpha(3);
     m_alpha[0] = 1.f / (24.f*m_dx.x);
     m_alpha[1] = 1.f / (24.f*m_dx.y);
     m_alpha[2] = 1.f / (24.f*m_dx.z);
@@ -61,11 +60,13 @@ void Scene::Init() const {
     /// Allocating DeviceMaterial
     FrequencyDomain fd = m_frequency_domain;
     DeviceMaterials<thrust::device_vector<float>> m_device_materials;
-    for (const auto & m : m_materials) {
-        m_device_materials.push_back(m.GetDeviceMaterial(fd))
+    for (const auto &m : m_materials) {
+        m_device_materials.push_back(m.GetDeviceMaterial<float>(fd));
     }
 
     /// Allocating Tau Sigma
     std::vector<float> tau_sigma = m_frequency_domain.TauSigma();
-    cudaMemcpyToSymbol(d_tau_sigma, tau_sigma.data(), sizeof(float)*tau_sigma.size());
+    m_tau_sigma.resize(tau_sigma.size());
+    thrust::copy(m_tau_sigma.begin(), m_tau_sigma.end(), tau_sigma.begin());
+    // m_tau_sigma = thrust::device_vector<float>(tau_sigma.begin(), tau_sigma.end());
 }
