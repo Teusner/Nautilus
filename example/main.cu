@@ -40,14 +40,12 @@ int main(void) {
     SinEmitter e(10, 10, 10);
     s.emitters.push_back(e);
 
-    cudaProfilerStart();
-    unsigned int a = 10;
+    unsigned int a = 2;
     for (unsigned int i = 0; i < a; i++) {
         std::cout << "Step\n";
         s.Step<x, y, z, l, SinEmitter>();
         s.m_i ++;
     }
-    cudaProfilerStop();
 
     std::cout << "P  : ";
     thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1010, std::ostream_iterator<float>(std::cout, " "));

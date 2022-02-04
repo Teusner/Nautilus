@@ -10,7 +10,7 @@
 
 Scene::Scene(   const unsigned int x, const unsigned int y, const unsigned int z,
                 const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain
-            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), R(x*y*z*frequency_domain.l())
+            ) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), dU(x*y*z), R(x*y*z*frequency_domain.l())
 {
     m_materials = std::vector<Material>(1, Material());
     m_M = thrust::device_vector<float>(x * y * z, 0);
