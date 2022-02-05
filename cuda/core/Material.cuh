@@ -80,12 +80,9 @@ struct DeviceMaterials {
 };
 
 
-
-
-
 class Material {
     public:
-        __host__ Material() : Material(1000, 1500, 100, 0, 1) {};
+        __host__ Material() : Material(100, 1500, 20, 0, 1) {};
         __host__ Material(float rho, float cp, float Qp, float cs, float Qs) : m_rho(rho), m_cp(cp), m_Qp(Qp), m_cs(cs), m_Qs(Qs) {};
         __host__ ~Material() = default;
 
