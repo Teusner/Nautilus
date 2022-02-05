@@ -22,7 +22,7 @@ int main(void) {
     constexpr float dy = 0.1;
     constexpr float dz = 0.1;
 
-    constexpr float dt = 0.00000001;
+    constexpr float dt = 0.000001;
 
     // FrequencyDomain
     float omega_min = 2*M_PI*2.;
