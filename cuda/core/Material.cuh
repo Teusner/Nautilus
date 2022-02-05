@@ -11,10 +11,8 @@
 template<typename T>
 struct DeviceMaterial {
     T inv_rho;
-    T eta_tau_p;
-    T eta_tau_gamma_p;
-    T mu_tau_s;
-    T mu_tau_gamma_s;
+    T eta_tau_p_1;
+    T mu_tau_s_1;
 };
 
 template<typename Vector>
@@ -26,56 +24,48 @@ struct DeviceMaterials {
         thrust::tuple<
             typename Vector::iterator,
             typename Vector::iterator,
-            typename Vector::iterator,
-            typename Vector::iterator,
             typename Vector::iterator
         >
     > iterator;
 
     /// Constructor
-    DeviceMaterials(std::size_t size_) : size(size_), inv_rho(size), eta_tau_p(size), eta_tau_gamma_p(size), mu_tau_s(size), mu_tau_gamma_s(size) {};
+    DeviceMaterials(std::size_t size_) : size(size_), inv_rho(size), eta_tau_p_1(size), mu_tau_s_1(size) {};
 
     /// Member variables
     std::size_t size;
     Vector inv_rho;
-    Vector eta_tau_p;
-    Vector eta_tau_gamma_p;
-    Vector mu_tau_s;
-    Vector mu_tau_gamma_s;
+    Vector eta_tau_p_1;
+    Vector mu_tau_s_1;
 
     /// Copy operator
     template <typename TOther>
     DeviceMaterials<Vector>& operator=(const TOther &other) {
         inv_rho = other.inv_rho;
-        eta_tau_p = other.eta_tau_p;
-        eta_tau_gamma_p = other.eta_tau_gamma_p;
-        mu_tau_s = other.mu_tau_s;
-        mu_tau_gamma_s = other.mu_tau_gamma_s;
+        eta_tau_p_1 = other.eta_tau_p_1;
+        mu_tau_s_1 = other.mu_tau_s_1;
         return *this;
     }
 
     /// Begin iterator
     iterator begin() {
-        return thrust::make_zip_iterator(thrust::make_tuple(inv_rho.begin(),eta_tau_p.begin(),eta_tau_gamma_p.begin(),mu_tau_s.begin(),mu_tau_gamma_s.begin()));
+        return thrust::make_zip_iterator(thrust::make_tuple(inv_rho.begin(),eta_tau_p_1.begin(),mu_tau_s_1.begin()));
     }
 
     /// End iterator
     iterator end() {
-        return thrust::make_zip_iterator(thrust::make_tuple(inv_rho.end(),eta_tau_p.end(),eta_tau_gamma_p.end(),mu_tau_s.end(),mu_tau_gamma_s.end()));
+        return thrust::make_zip_iterator(thrust::make_tuple(inv_rho.end(),eta_tau_p_1.end(),mu_tau_s_1.end()));
     }
 
     /// Array of structure getter at index
     struct Ref {
-        T &inv_rho; T &eta_tau_p; T &eta_tau_gamma_p; T &mu_tau_s; T &mu_tau_gamma_s;
-        Ref(iterator z) : inv_rho(thrust::get<0>(z)), eta_tau_p(thrust::get<1>(z)), eta_tau_gamma_p(thrust::get<2>(z)), mu_tau_s(thrust::get<3>(z)), mu_tau_gamma_s(thrust::get<4>(z)) {}
+        T &inv_rho; T &eta_tau_p; T &eta_tau_p_1; T &mu_tau_s; T &mu_tau_s_1;
+        Ref(iterator z) : inv_rho(thrust::get<0>(z)), eta_tau_p_1(thrust::get<1>(z)), mu_tau_s_1(thrust::get<2>(z)) {}
     };
 
     void push_back(DeviceMaterial<T> dm) {
         inv_rho.push_back(dm.inv_rho);
-        eta_tau_p.push_back(dm.eta_tau_p);
-        eta_tau_gamma_p.push_back(dm.eta_tau_gamma_p);
-        mu_tau_s.push_back(dm.mu_tau_s);
-        mu_tau_gamma_s.push_back(dm.mu_tau_gamma_s);
+        eta_tau_p_1.push_back(dm.eta_tau_p_1);
+        mu_tau_s_1.push_back(dm.mu_tau_s_1);
     };
 };
 
@@ -144,18 +134,13 @@ DeviceMaterial<T> Material::GetDeviceMaterial(FrequencyDomain fd) const {
 
     /// Tau epsilon p computing
     float tau_p = fd.tau(m_Qp);
-    std::cout << "Tau_p = " << tau_p << std::endl;;
+    std::cout << "Tau_p = " << tau_p << std::endl;
 
     /// Tau epsilon s computing
     float tau_s = fd.tau(m_Qs);
-    std::cout << "Tau_s = " << tau_s << std::endl;;
+    std::cout << "Tau_s = " << tau_s << std::endl;
 
-    // float tau_gamma_p = 1 - float(l) + tau_epsilon_p;
-    // float tau_gamma_s = 1 - float(l) + tau_epsilon_s;
-
-    // std::cout << tau_gamma_p << " " << tau_gamma_s << std::endl;
-
-    return DeviceMaterial<float>{1 / m_rho, m_rho * powf(m_cp, 2.) * tau_p, m_rho * powf(m_cp, 2.) * tau_p, m_rho * powf(m_cs, 2) * tau_s, m_rho * powf(m_cs, 2) * tau_s};
+    return DeviceMaterial<float>{1 / m_rho, m_rho * powf(m_cp, 2.) * (tau_p + 1), m_rho * powf(m_cs, 2) * (tau_s + 1)};
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Material &m) {

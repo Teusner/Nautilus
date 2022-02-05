@@ -215,8 +215,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.y[0])),
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p_1[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -227,8 +227,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.y[0])),
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p_1[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -239,8 +239,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.y[0])),
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p_1[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -250,7 +250,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(U.y[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -260,7 +260,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.y[0])),
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -270,7 +270,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -282,8 +282,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(R.x[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p_1[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(E[0]))
     );
 
@@ -295,8 +295,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(R.y[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p_1[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(E[0]))
     );
 
@@ -308,8 +308,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(R.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p_1[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(E[0]))
     );
 
@@ -320,7 +320,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.y[0])),
         thrust::raw_pointer_cast(&(R.xy[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0]))
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0]))
     );
 
     Pyz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
@@ -330,7 +330,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(R.yz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0]))
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0]))
     );
 
     Pxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
@@ -340,6 +340,6 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(R.xz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0]))
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0]))
     );
 };

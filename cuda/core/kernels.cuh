@@ -266,7 +266,7 @@ __global__ void Pxx(float dt, float* Px, float* Uxx, float* Uyy, float* Uzz, flo
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
-        Px[i + j*x + k*y] += dt * eta_tau_gamma_p[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * mu_tau_gamma_s[material_index] * (Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) + Rx[i + j*x + k*y] + F[i + j*x + k*y];
+        Px[i + j*x + k*y] += dt * (eta_tau_gamma_p[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * mu_tau_gamma_s[material_index] * (Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) + Rx[i + j*x + k*y]) + F[i + j*x + k*y];
     }
 }
 
@@ -278,7 +278,7 @@ __global__ void Pyy(float dt, float* Py, float* Uxx, float* Uyy, float* Uzz, flo
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
-        Py[i + j*x + k*y] += dt * eta_tau_gamma_p[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[i + j*x + k*y] + Uzz[i + j*x + k*y]) + Ry[i + j*x + k*y] + F[i + j*x + k*y];
+        Py[i + j*x + k*y] += dt * (eta_tau_gamma_p[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[i + j*x + k*y] + Uzz[i + j*x + k*y]) + Ry[i + j*x + k*y]) + F[i + j*x + k*y];
     }
 }
 
@@ -290,7 +290,7 @@ __global__ void Pzz(float dt, float* Pz, float* Uxx, float* Uyy, float* Uzz, flo
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
-        Pz[i + j*x + k*y] += dt * eta_tau_gamma_p[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y]) + Rz[i + j*x + k*y] + F[i + j*x + k*y];
+        Pz[i + j*x + k*y] += dt * (eta_tau_gamma_p[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y] + Uzz[i + j*x + k*y]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[i + j*x + k*y] + Uyy[i + j*x + k*y]) + Rz[i + j*x + k*y]) + F[i + j*x + k*y];
     }
 }
 
@@ -304,7 +304,7 @@ __global__ void Pxy(float dt, float* Pxy, float* Ux, float* Uy, float* Rxy, unsi
         float Uxy = - Ux[i + (j+2)*x + k*y] + 27 * (Ux[i + (j+1)*x + k*y] - Ux[i + j*x + k*y]) + Ux[i + (j-1)*x + k*y];
         float Uyx = - Uy[i+2 + j*x + k*y] + 27 * (Uy[i+1 + j*x + k*y] - Uy[i + j*x + k*y]) + Uy[i-1 + j*x + k*y];
         unsigned int material_index = S[i + j*x + k*y];
-        Pxy[i + j*x + k*y] += dt * mu_tau_gamma_s[material_index] * (Uxy + Uyx) + Rxy[i + j*x + k*y];
+        Pxy[i + j*x + k*y] += dt * (mu_tau_gamma_s[material_index] * (Uxy + Uyx) + Rxy[i + j*x + k*y]);
     }
 }
 
@@ -318,7 +318,7 @@ __global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, unsi
         float Uyz = - Uy[i + j*x + (k+2)*y] + 27 * (Uy[i + j*x + (k+1)*y] - Uy[i + j*x + k*y]) + Uy[i + j*x + (k-1)*y];
         float Uzy = - Uz[i + (j+2)*x + k*y] + 27 * (Uz[i + (j+1)*x + k*y] - Uz[i + j*x + k*y]) + Uz[i + (j-1)*x + k*y];
         unsigned int material_index = S[i + j*x + k*y];
-        Pyz[i + j*x + k*y] += dt * mu_tau_gamma_s[material_index] * (Uyz + Uzy) + Ryz[i + j*x + k*y];
+        Pyz[i + j*x + k*y] += dt * (mu_tau_gamma_s[material_index] * (Uyz + Uzy) + Ryz[i + j*x + k*y]);
     }
 }
 
@@ -332,7 +332,7 @@ __global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, unsi
         float Uxz = - Ux[i + j*x + (k+2)*y] + 27 * (Ux[i + j*x + (k+1)*y] - Ux[i + j*x + k*y]) + Ux[i + j*x + (k-1)*y];
         float Uzx = - Uz[i+2 + j*x + k*y] + 27 * (Uz[i+1 + j*x + k*y] - Uz[i + j*x + k*y]) + Uz[i-1 + j*x + k*y];
         unsigned int material_index = S[i + j*x + k*y];
-        Pxz[i + j*x + k*y] += dt * mu_tau_gamma_s[material_index] * (Uxz + Uzx) + Rxz[i + j*x + k*y];
+        Pxz[i + j*x + k*y] += dt * (mu_tau_gamma_s[material_index] * (Uxz + Uzx) + Rxz[i + j*x + k*y]);
     }
 }
 

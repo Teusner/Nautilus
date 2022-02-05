@@ -22,7 +22,7 @@ int main(void) {
     constexpr float dy = 0.1;
     constexpr float dz = 0.1;
 
-    constexpr float dt = 0.000001;
+    constexpr float dt = 0.00000001;
 
     // FrequencyDomain
     float omega_min = 2*M_PI*2.;
@@ -40,7 +40,7 @@ int main(void) {
     SinEmitter e(10, 10, 10);
     s.emitters.push_back(e);
 
-    unsigned int a = 10;
+    unsigned int a = 15;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, l, SinEmitter>();
         s.m_i ++;
