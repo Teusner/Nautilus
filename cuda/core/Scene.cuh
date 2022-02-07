@@ -190,6 +190,9 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(m_alpha[0]))
     );
 
+    // Let each kernels finising their tasks
+    cudaDeviceSynchronize();
+
     Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_alpha[0],
         thrust::raw_pointer_cast(&(U.x[0])),
@@ -207,6 +210,9 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(dU.z[0]))
     );
+
+    // Let each kernels finising their tasks
+    cudaDeviceSynchronize();
 
     Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
@@ -273,6 +279,9 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
+
+    // Let each kernels finising their tasks
+    cudaDeviceSynchronize();
 
     Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
@@ -342,4 +351,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(m_M[0])),
         thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s_1[0]))
     );
+
+    // Let each kernels finising their tasks
+    cudaDeviceSynchronize();
 };

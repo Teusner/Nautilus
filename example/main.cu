@@ -40,7 +40,7 @@ int main(void) {
     SinEmitter e(10, 10, 10);
     s.emitters.push_back(e);
 
-    unsigned int a = 15;
+    unsigned int a = 25;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, l, SinEmitter>();
         s.m_i ++;
