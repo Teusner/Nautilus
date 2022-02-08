@@ -45,30 +45,30 @@ int main(void) {
         s.m_i ++;
     }
 
-    std::cout << "P  : ";
-    float Px_sum = thrust::reduce(s.P.x.begin(), s.P.x.end(), 0.f);
-    std::cout << "[" << Px_sum << "] ";
-    thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nPxy : ";
-    float Pxy_sum = thrust::reduce(s.P.xy.begin(), s.P.xy.end(), 0.f);
-    std::cout << "[" << Pxy_sum << "] ";
-    thrust::copy(s.P.xy.begin() + 1000, s.P.xy.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nUx  : ";
-    float Ux_sum = thrust::reduce(s.U.x.begin(), s.U.x.end(), 0.f);
-    std::cout << "[" << Ux_sum << "] ";
-    thrust::copy(s.U.x.begin() + 1000, s.U.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nUxx  : ";
-    float Uxx_sum = thrust::reduce(s.dU.x.begin(), s.dU.x.end(), 0.f);
-    std::cout << "[" << Uxx_sum << "] ";
-    thrust::copy(s.dU.x.begin() + 1000, s.dU.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nRx : ";
-    float Rx_sum = thrust::reduce(s.R.x.begin(), s.R.x.end(), 0.f);
-    std::cout << "[" << Rx_sum << "] ";
-    thrust::copy(s.R.x.begin() + 1000, s.R.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    std::cout << "\nRxy : ";
-    float Rxy_sum = thrust::reduce(s.R.xy.begin(), s.R.xy.end(), 0.f);
-    std::cout << "[" << Rxy_sum << "] ";
-    thrust::copy(s.R.xy.begin() + 1000, s.R.xy.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "P  : ";
+    // float Px_sum = thrust::reduce(s.P.x.begin(), s.P.x.end(), 0.f);
+    // std::cout << "[" << Px_sum << "] ";
+    // thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nPxy : ";
+    // float Pxy_sum = thrust::reduce(s.P.xy.begin(), s.P.xy.end(), 0.f);
+    // std::cout << "[" << Pxy_sum << "] ";
+    // thrust::copy(s.P.xy.begin() + 1000, s.P.xy.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nUx  : ";
+    // float Ux_sum = thrust::reduce(s.U.x.begin(), s.U.x.end(), 0.f);
+    // std::cout << "[" << Ux_sum << "] ";
+    // thrust::copy(s.U.x.begin() + 1000, s.U.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nUxx  : ";
+    // float Uxx_sum = thrust::reduce(s.dU.x.begin(), s.dU.x.end(), 0.f);
+    // std::cout << "[" << Uxx_sum << "] ";
+    // thrust::copy(s.dU.x.begin() + 1000, s.dU.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nRx : ";
+    // float Rx_sum = thrust::reduce(s.R.x.begin(), s.R.x.end(), 0.f);
+    // std::cout << "[" << Rx_sum << "] ";
+    // thrust::copy(s.R.x.begin() + 1000, s.R.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "\nRxy : ";
+    // float Rxy_sum = thrust::reduce(s.R.xy.begin(), s.R.xy.end(), 0.f);
+    // std::cout << "[" << Rxy_sum << "] ";
+    // thrust::copy(s.R.xy.begin() + 1000, s.R.xy.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
     
     return 0;
 }
