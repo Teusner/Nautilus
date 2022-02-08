@@ -127,18 +127,18 @@ DeviceMaterial<T> Material::GetDeviceMaterial(FrequencyDomain fd) const {
     std::vector<float> tau_sigma = fd.TauSigma();
 
     /// Tau Sigma showing
-    std::cout << "L: " << l << std::endl;
-    std::cout << "Tau Sigma: [";
-    std::copy(std::begin(tau_sigma), std::end(tau_sigma), std::ostream_iterator<float>(std::cout, ", "));
-    std::cout << "]\n";
+    // std::cout << "L: " << l << std::endl;
+    // std::cout << "Tau Sigma: [";
+    // std::copy(std::begin(tau_sigma), std::end(tau_sigma), std::ostream_iterator<float>(std::cout, ", "));
+    // std::cout << "]\n";
 
     /// Tau epsilon p computing
     float tau_p = fd.tau(m_Qp);
-    std::cout << "Tau_p = " << tau_p << std::endl;
+    // std::cout << "Tau_p = " << tau_p << std::endl;
 
     /// Tau epsilon s computing
     float tau_s = fd.tau(m_Qs);
-    std::cout << "Tau_s = " << tau_s << std::endl;
+    // std::cout << "Tau_s = " << tau_s << std::endl;
 
     return DeviceMaterial<float>{1 / m_rho, m_rho * powf(m_cp, 2.) * (tau_p + 1), m_rho * powf(m_cs, 2) * (tau_s + 1)};
 }

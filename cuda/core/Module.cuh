@@ -63,7 +63,7 @@ class SinEmitter : public Module {
     public: __host__ __device__ SinEmitter(dim3 d) : Module(d) {};
 
     /// Call operator
-    public: __host__ __device__ float operator()(float t) const { return 0.000001*sin(t); };
+    public: __host__ __device__ float operator()(float t) const { return 0.0001*sin(2*M_PI*15*t); };
 };
 
 class Reciever : public Module {

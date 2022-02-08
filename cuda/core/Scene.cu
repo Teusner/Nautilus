@@ -62,6 +62,13 @@ void Scene::Init() {
         m_device_materials.push_back(m.GetDeviceMaterial<float>(fd));
     }
 
+    // std::cout << "Eta Tau P : [";
+    // thrust::copy(m_device_materials.eta_tau_p_1.begin(), m_device_materials.eta_tau_p_1.end(), std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "]\n";
+    // std::cout << "Mu Tau S : [";
+    // thrust::copy(m_device_materials.mu_tau_s_1.begin(), m_device_materials.mu_tau_s_1.end(), std::ostream_iterator<float>(std::cout, " "));
+    // std::cout << "]\n";
+
     /// Allocating Tau Sigma
     std::vector<float> tau_sigma = m_frequency_domain.TauSigma();
     // m_tau_sigma.resize(tau_sigma.size());

@@ -117,5 +117,5 @@ inline void FrequencyDomain::I() {
     std::generate(std::begin(I2l), std::end(I2l), I2kl);
 
     m_I = std::accumulate(std::begin(I0l), std::end(I0l), 0.) / (std::accumulate(std::begin(I1l), std::end(I1l), 0.) + 2 * std::accumulate(std::begin(I2l), std::end(I2l), 0.));
-    std::cout << "I : " << m_I << std::endl;
+    // std::cout << "I : " << m_I << std::endl;
 }

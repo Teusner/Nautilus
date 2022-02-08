@@ -141,7 +141,7 @@ class Scene {
     public: void Init();
 
     /// Step
-    public: template<unsigned int x, unsigned int y, unsigned int z, unsigned int l, typename T> void Step();
+    public: template<unsigned int x, unsigned int y, unsigned int z, typename T> void Step();
 
     /// Priority queue handling Events in priority order
     private : std::priority_queue<Event, std::vector<Event>, std::greater<Event>> m_events;
@@ -149,7 +149,7 @@ class Scene {
 
 
 /// Implementation
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int l, typename T>
+template<unsigned int x, unsigned int y, unsigned int z, typename T>
 void Scene::Step() {
     // Emitter Field computing
     F<x, y, z, T><<<1, 1>>>(m_dt*m_i, thrust::raw_pointer_cast(&(emitters[0])), thrust::raw_pointer_cast(&(E[0])));
@@ -159,35 +159,35 @@ void Scene::Step() {
 
     Ux<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
+        thrust::raw_pointer_cast(&(m_alpha[0])),
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(P.x[0])),
         thrust::raw_pointer_cast(&(P.xy[0])),
         thrust::raw_pointer_cast(&(P.xz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0])),
-        thrust::raw_pointer_cast(&(m_alpha[0]))
+        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
     );
 
     Uy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
+        thrust::raw_pointer_cast(&(m_alpha[0])),
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(P.x[0])),
         thrust::raw_pointer_cast(&(P.xy[0])),
         thrust::raw_pointer_cast(&(P.xz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0])),
-        thrust::raw_pointer_cast(&(m_alpha[0]))
+        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
     );
 
     Uz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
+        thrust::raw_pointer_cast(&(m_alpha[0])),
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(P.x[0])),
         thrust::raw_pointer_cast(&(P.xy[0])),
         thrust::raw_pointer_cast(&(P.xz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0])),
-        thrust::raw_pointer_cast(&(m_alpha[0]))
+        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
     );
 
     // Let each kernels finising their tasks
