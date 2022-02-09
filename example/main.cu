@@ -6,6 +6,9 @@
 
 #include "core/FrequencyDomain.cuh"
 #include "core/kernels.cuh"
+
+#include "export.h"
+
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 #include <thrust/iterator/counting_iterator.h>
@@ -22,7 +25,7 @@ int main(void) {
     constexpr float dy = 1;
     constexpr float dz = 1;
 
-    constexpr float dt = 1e-6;
+    constexpr float dt = 1e-5;
 
     // FrequencyDomain
     float omega_min = 2*M_PI*2.;
@@ -36,14 +39,24 @@ int main(void) {
     s.SetScene(s_M);
     s.Init();
 
-    SinEmitter e(10, 10, 10);
+    SinEmitter e(0, 0, 0);
     s.emitters.push_back(e);
 
-    unsigned int a = 1000;
+    thrust::counting_iterator<unsigned int> index_sequence_begin(0);
+    thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.x.begin(), prg(-1.f,1.f));
+
+    unsigned int a = 10000;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, SinEmitter>();
         s.m_i ++;
+        if (s.m_i%1000 == 0) {
+            std::cout << "Time : " << s.Time() << " s" << std::endl;
+        }
     }
+
+    std::vector<float> P (s.P.x.size());
+    thrust::copy(s.P.x.begin(), s.P.x.end(), P.begin());
+    to_xarray("Pressure.npy", P.begin(), P.end(), x, y, z);
 
     // std::cout << "P  : ";
     // float Px_sum = thrust::reduce(s.P.x.begin(), s.P.x.end(), 0.f);

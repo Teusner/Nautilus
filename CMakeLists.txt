@@ -36,7 +36,12 @@ set(MAIN_SOURCES src/main.cpp)
 ## Specify a name for the generated executable file
 set(MAIN_EXE_NAME Nautilus)
 
+find_package(xtensor REQUIRED)
+
 ## 1. Compile...
+add_library(export src/export.cpp)
+target_link_libraries(export PUBLIC xtensor)
+target_include_directories(export PUBLIC ${xtensor_INCLUDE_DIRS})
 # add_executable(nautilus src/main.cu src/Module.cu src/Scene.cpp cuda/core/Material.cu src/Event.cpp cuda/utils/constant_memory.cu cuda/core/Field.cu)
 
 ## Tests

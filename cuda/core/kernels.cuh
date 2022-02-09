@@ -15,9 +15,9 @@ __global__ void F(float t, T* E, float* F) {
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Ux(float dt, float* alpha, float* Ux, float* Px, float* Pxy, float* Pxz, unsigned int* S, float* inv_rho) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float dPxx = (- Px[i+2 + j*x + k*y] + 27 * (Px[i+1 + j*x + k*y] - Px[i + j*x + k*y]) + Px[i-1 + j*x + k*y]) * alpha[0];
@@ -30,9 +30,9 @@ __global__ void Ux(float dt, float* alpha, float* Ux, float* Px, float* Pxy, flo
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Uy(float dt, float* alpha, float* Uy, float* Py, float* Pxy, float* Pyz, unsigned int* S, float* inv_rho) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float dPyy = (- Py[i + (j+2)*x + k*y] + 27 * (Py[i + (j+1)*x + k*y] - Py[i + j*x + k*y]) + Py[i + (j-1)*x + k*y]) * alpha[1];
@@ -45,9 +45,9 @@ __global__ void Uy(float dt, float* alpha, float* Uy, float* Py, float* Pxy, flo
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Uz(float dt, float* alpha, float* Uz, float* Pz, float* Pyz, float* Pxz, unsigned int* S, float* inv_rho) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float dPzz = (- Pz[i + j*x + (k+2)*y] + 27 * (Pz[i + j*x + (k+1)*y] - Pz[i + j*x + k*y]) + Pz[i + j*x + (k-1)*y]) * alpha[2];
@@ -60,9 +60,9 @@ __global__ void Uz(float dt, float* alpha, float* Uz, float* Pz, float* Pyz, flo
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Uxx(float alpha_x, float* Ux, float* Uxx) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         Uxx[i + j*x + k*y] = (- Ux[i+1 + j*x + k*y] + 27 * (Ux[i + j*x + k*y] - Ux[i-1 + j*x + k*y]) + Ux[i-2 + j*x + k*y]) * alpha_x;
@@ -71,9 +71,9 @@ __global__ void Uxx(float alpha_x, float* Ux, float* Uxx) {
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Uyy(float alpha_y, float* Uy, float* Uyy) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         Uyy[i + j*x + k*y] = (- Uy[i + (j+1)*x + k*y] + 27 * (Uy[i + j*x + k*y] - Uy[i + (j-1)*x + k*y]) + Uy[i + (j-2)*x + k*y]) * alpha_y;
@@ -82,9 +82,9 @@ __global__ void Uyy(float alpha_y, float* Uy, float* Uyy) {
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Uzz(float alpha_z, float* Uz, float* Uzz) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         Uzz[i + j*x + k*y] = (- Uz[i + j*x + (k+1)*y] + 27 * (Uz[i + j*x + k*y] - Uz[i + j*x + (k-1)*y]) + Uz[i + j*x + (k-2)*y]) * alpha_z;
@@ -93,9 +93,9 @@ __global__ void Uzz(float alpha_z, float* Uz, float* Uzz) {
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Rxx(float dt, float* Rx, float* Uxx, float* Uyy, float* Uzz, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* tau_sigma) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
@@ -105,9 +105,9 @@ __global__ void Rxx(float dt, float* Rx, float* Uxx, float* Uyy, float* Uzz, uns
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Ryy(float dt, float* Ry, float* Uxx, float* Uyy, float* Uzz, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* tau_sigma) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
@@ -117,9 +117,9 @@ __global__ void Ryy(float dt, float* Ry, float* Uxx, float* Uyy, float* Uzz, uns
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Rzz(float dt, float* Rz, float* Uxx, float* Uyy, float* Uzz, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* tau_sigma) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
@@ -129,9 +129,9 @@ __global__ void Rzz(float dt, float* Rz, float* Uxx, float* Uyy, float* Uzz, uns
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Rxy(float dt, float* Rxy, float* Ux, float* Uy, unsigned int* S, float* mu_tau_gamma_s, float* tau_sigma) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uxy = - Ux[i + (j+2)*x + k*y] + 27 * (Ux[i + (j+1)*x + k*y] - Ux[i + j*x + k*y]) + Ux[i + (j-1)*x + k*y];
@@ -143,9 +143,9 @@ __global__ void Rxy(float dt, float* Rxy, float* Ux, float* Uy, unsigned int* S,
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Ryz(float dt, float* Ryz, float* Uy, float* Uz, unsigned int* S, float* mu_tau_gamma_s, float* tau_sigma) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uyz = - Uy[i + j*x + (k+2)*y] + 27 * (Uy[i + j*x + (k+1)*y] - Uy[i + j*x + k*y]) + Uy[i + j*x + (k-1)*y];
@@ -157,9 +157,9 @@ __global__ void Ryz(float dt, float* Ryz, float* Uy, float* Uz, unsigned int* S,
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, unsigned int* S, float* mu_tau_gamma_s, float* tau_sigma) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uxz = - Ux[i + j*x + (k+2)*y] + 27 * (Ux[i + j*x + (k+1)*y] - Ux[i + j*x + k*y]) + Ux[i + j*x + (k-1)*y];
@@ -171,9 +171,9 @@ __global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, unsigned int* S,
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pxx(float dt, float* Px, float* Uxx, float* Uyy, float* Uzz, float* Rx, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* F) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
@@ -183,9 +183,9 @@ __global__ void Pxx(float dt, float* Px, float* Uxx, float* Uyy, float* Uzz, flo
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pyy(float dt, float* Py, float* Uxx, float* Uyy, float* Uzz, float* Ry, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* F) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
@@ -195,9 +195,9 @@ __global__ void Pyy(float dt, float* Py, float* Uxx, float* Uyy, float* Uzz, flo
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pzz(float dt, float* Pz, float* Uxx, float* Uyy, float* Uzz, float* Rz, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* F) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[i + j*x + k*y];
@@ -207,9 +207,9 @@ __global__ void Pzz(float dt, float* Pz, float* Uxx, float* Uyy, float* Uzz, flo
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pxy(float dt, float* Pxy, float* Ux, float* Uy, float* Rxy, unsigned int* S, float* mu_tau_gamma_s) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uxy = - Ux[i + (j+2)*x + k*y] + 27 * (Ux[i + (j+1)*x + k*y] - Ux[i + j*x + k*y]) + Ux[i + (j-1)*x + k*y];
@@ -221,9 +221,9 @@ __global__ void Pxy(float dt, float* Pxy, float* Ux, float* Uy, float* Rxy, unsi
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, unsigned int* S, float* mu_tau_gamma_s) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uyz = - Uy[i + j*x + (k+2)*y] + 27 * (Uy[i + j*x + (k+1)*y] - Uy[i + j*x + k*y]) + Uy[i + j*x + (k-1)*y];
@@ -235,9 +235,9 @@ __global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, unsi
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, unsigned int* S, float* mu_tau_gamma_s) {
-    unsigned int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-    unsigned int j = (blockIdx.y * blockDim.y) + threadIdx.y;
-    unsigned int k = (blockIdx.z * blockDim.z) + threadIdx.z;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         float Uxz = - Ux[i + j*x + (k+2)*y] + 27 * (Ux[i + j*x + (k+1)*y] - Ux[i + j*x + k*y]) + Ux[i + j*x + (k-1)*y];
