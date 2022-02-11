@@ -19,7 +19,7 @@
 int main(void) {
     constexpr unsigned int x = 100;
     constexpr unsigned int y = 100;
-    constexpr unsigned int z = 100;
+    constexpr unsigned int z = 5;
 
     constexpr float dx = 1;
     constexpr float dy = 1;
@@ -39,13 +39,10 @@ int main(void) {
     s.SetScene(s_M);
     s.Init();
 
-    SinEmitter e(0, 0, 0);
+    SinEmitter e(50, 50, 2);
     s.emitters.push_back(e);
 
-    thrust::counting_iterator<unsigned int> index_sequence_begin(0);
-    thrust::transform(index_sequence_begin, index_sequence_begin + x*y*z, s.P.x.begin(), prg(-1.f,1.f));
-
-    unsigned int a = 10000;
+    unsigned int a = 50;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, SinEmitter>();
         s.m_i ++;
@@ -54,9 +51,12 @@ int main(void) {
         }
     }
 
-    std::vector<float> P (s.P.x.size());
-    thrust::copy(s.P.x.begin(), s.P.x.end(), P.begin());
-    to_xarray("Pressure.npy", P.begin(), P.end(), x, y, z);
+    thrust::host_vector<float> P = s.P.x;
+    // thrust::transform(s.P.y.begin(), s.P.y.end(), s.P.y.begin(), P.begin(), thrust::plus<float>());
+    // thrust::transform(s.P.y.begin(), s.P.y.end(), P.begin(), P.begin(), thrust::plus<float>())
+    // thrust::transform(s.P.z.begin(), s.P.z.end(), P.begin(), P.begin(), thrust::plus<float>())
+    std::vector<float> vec(P.begin(), P.end());
+    to_xarray("Pressure.npy", vec.begin(), vec.end(), x, y, z);
 
     // std::cout << "P  : ";
     // float Px_sum = thrust::reduce(s.P.x.begin(), s.P.x.end(), 0.f);

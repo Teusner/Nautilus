@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Nautilus LANGUAGES CUDA CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 ## Required software
 find_package(CUDA REQUIRED)
@@ -29,7 +29,7 @@ set(CUDA_NVCC_FLAGS_DEBUG -g -G -O0)
 set(CUDA_NVCC_FLAGS_RELEASE -O3 -lineinfo)
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}  --expt-relaxed-constexpr
                                          --expt-extended-lambda
-                                         -std=c++14")
+                                         -std=c++17")
 
 ## Source file containing the "main" function
 set(MAIN_SOURCES src/main.cpp)
