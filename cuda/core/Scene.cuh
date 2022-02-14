@@ -97,6 +97,7 @@ class Scene {
     public: thrust::device_vector<SinEmitter> emitters;
 
 
+    // @@@@@ Add Previous and Next Fields @@@@@
     
     /// ### Fields
     /// Pressure Field
@@ -105,14 +106,23 @@ class Scene {
     /// Velocity Field
     public: VelocityField<thrust::device_vector<float>> U;
 
-    /// Derivative of Velocity Field
-    public: VelocityField<thrust::device_vector<float>> dU;
-
     /// Memory Field
     public: MemoryField<thrust::device_vector<float>> R;
 
+    /// Derivative of Velocity Field
+    private: VelocityField<thrust::device_vector<float>> dU;
+
     /// Emitter Pressure Field
-    public: thrust::device_vector<float> E;
+    private: thrust::device_vector<float> E;
+
+    // /// Next Pressure Field
+    // private: PressureField<thrust::device_vector<float>> m_P;
+
+    // /// Next Velocity Field
+    // private: VelocityField<thrust::device_vector<float>> m_U;
+
+    // /// Next Memory Field
+    // private: MemoryField<thrust::device_vector<float>> m_R;
 
 
 
@@ -171,10 +181,10 @@ void Scene::Step() {
     Uy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
         thrust::raw_pointer_cast(&(m_alpha[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(P.x[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(P.y[0])),
         thrust::raw_pointer_cast(&(P.xy[0])),
-        thrust::raw_pointer_cast(&(P.xz[0])),
+        thrust::raw_pointer_cast(&(P.yz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
         thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
     );
@@ -182,9 +192,9 @@ void Scene::Step() {
     Uz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
         thrust::raw_pointer_cast(&(m_alpha[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(P.x[0])),
-        thrust::raw_pointer_cast(&(P.xy[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(P.z[0])),
+        thrust::raw_pointer_cast(&(P.yz[0])),
         thrust::raw_pointer_cast(&(P.xz[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
         thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
@@ -293,8 +303,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.y[0])),
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -305,8 +315,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.y[0])),
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -317,8 +327,8 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(dU.y[0])),
         thrust::raw_pointer_cast(&(dU.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -328,7 +338,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(U.y[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -338,7 +348,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.y[0])),
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
@@ -348,7 +358,7 @@ void Scene::Step() {
         thrust::raw_pointer_cast(&(U.x[0])),
         thrust::raw_pointer_cast(&(U.z[0])),
         thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
         thrust::raw_pointer_cast(&(m_tau_sigma[0]))
     );
 
