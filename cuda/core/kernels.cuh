@@ -98,7 +98,9 @@ __global__ void Rxx(float dt, float* Rx, float* Uxx, float* Uyy, float* Uzz, uns
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[k + z*(j + y*i)];
-        Rx[k + z*(j + y*i)] -= dt / tau_sigma[0] * (Rx[k + z*(j + y*i)] + eta_tau_gamma_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_gamma_s[material_index] * (Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]));
+        float a = (2 * tau_sigma[0] - dt) / (2 * tau_sigma[0] + dt);
+        float b = (2 * dt) / (2 * tau_sigma[0] + dt);
+        Rx[k + z*(j + y*i)] = a * Rx[k + z*(j + y*i)] - b * (eta_tau_gamma_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_gamma_s[material_index] * (Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]));
     }
 }
 
@@ -110,7 +112,9 @@ __global__ void Ryy(float dt, float* Ry, float* Uxx, float* Uyy, float* Uzz, uns
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[k + z*(j + y*i)];
-        Ry[k + z*(j + y*i)] -= dt / tau_sigma[0] * (Ry[k + z*(j + y*i)] + eta_tau_gamma_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]));
+        float a = (2 * tau_sigma[0] - dt) / (2 * tau_sigma[0] + dt);
+        float b = (2 * dt) / (2 * tau_sigma[0] + dt);
+        Ry[k + z*(j + y*i)] = a * Ry[k + z*(j + y*i)] - b * (eta_tau_gamma_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]));
     }
 }
 
@@ -122,7 +126,9 @@ __global__ void Rzz(float dt, float* Rz, float* Uxx, float* Uyy, float* Uzz, uns
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[k + z*(j + y*i)];
-        Rz[k + z*(j + y*i)] -= dt / tau_sigma[0] * (Rz[k + z*(j + y*i)] + eta_tau_gamma_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)]));
+        float a = (2 * tau_sigma[0] - dt) / (2 * tau_sigma[0] + dt);
+        float b = (2 * dt) / (2 * tau_sigma[0] + dt);
+        Rz[k + z*(j + y*i)] = a * Rz[k + z*(j + y*i)] - b * (eta_tau_gamma_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_gamma_s[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)]));
     }
 }
 
@@ -136,7 +142,9 @@ __global__ void Rxy(float dt, float* Rxy, float* Ux, float* Uy, unsigned int* S,
         float Uxy = - Ux[k + z*(j+2 + y*i)] + 27 * (Ux[k + z*(j+1 + y*i)] - Ux[k + z*(j + y*i)]) + Ux[k + z*(j-1 + y*i)];
         float Uyx = - Uy[k+ z*(j + y*(i+2))] + 27 * (Uy[k + z*(j + y*(i+1))] - Uy[k + z*(j + y*i)]) + Uy[k + z*(j + y*(i-1))];
         unsigned int material_index = S[k + z*(j + y*i)];
-        Rxy[k + z*(j + y*i)] -= dt / tau_sigma[0] * (Rxy[k + z*(j + y*i)] + mu_tau_gamma_s[material_index] * (Uxy + Uyx));
+        float a = (2 * tau_sigma[0] - dt) / (2 * tau_sigma[0] + dt);
+        float b = (2 * dt) / (2 * tau_sigma[0] + dt);
+        Rxy[k + z*(j + y*i)] = a * Rxy[k + z*(j + y*i)] - b * (mu_tau_gamma_s[material_index] * (Uxy + Uyx));
     }
 }
 
@@ -150,7 +158,9 @@ __global__ void Ryz(float dt, float* Ryz, float* Uy, float* Uz, unsigned int* S,
         float Uyz = - Uy[k+2+ z*(j + y*i)] + 27 * (Uy[k+1 + z*(j + y*i)] - Uy[k + z*(j + y*i)]) + Uy[k-1 + z*(j + y*i)];
         float Uzy = - Uz[k + z*(j+2 + y*i)] + 27 * (Uz[k + z*(j+1 + y*i)] - Uz[k + z*(j + y*i)]) + Uz[k + z*(j-1 + y*i)];
         unsigned int material_index = S[k + z*(j + y*i)];
-        Ryz[k + z*(j + y*i)] -= dt / tau_sigma[0] * (Ryz[k + z*(j + y*i)] + mu_tau_gamma_s[material_index] * (Uyz + Uzy));
+        float a = (2 * tau_sigma[0] - dt) / (2 * tau_sigma[0] + dt);
+        float b = (2 * dt) / (2 * tau_sigma[0] + dt);
+        Ryz[k + z*(j + y*i)] = a * Ryz[k + z*(j + y*i)] - b * (mu_tau_gamma_s[material_index] * (Uyz + Uzy));
     }
 }
 
@@ -164,43 +174,45 @@ __global__ void Rxz(float dt, float* Rxz, float* Ux, float* Uz, unsigned int* S,
         float Uxz = - Ux[k+2+ z*(j + y*i)] + 27 * (Ux[k+1 + z*(j + y*i)] - Ux[k + z*(j + y*i)]) + Ux[k-1 + z*(j + y*i)];
         float Uzx = - Uz[k+ z*(j + y*(i+2))] + 27 * (Uz[k + z*(j + y*(i+1))] - Uz[k + z*(j + y*i)]) + Uz[k + z*(j + y*(i-1))];
         unsigned int material_index = S[k + z*(j + y*i)];
-        Rxz[k + z*(j + y*i)] -= dt / tau_sigma[0] * (Rxz[k + z*(j + y*i)] + mu_tau_gamma_s[material_index] * (Uxz + Uzx));
+        float a = (2 * tau_sigma[0] - dt) / (2 * tau_sigma[0] + dt);
+        float b = (2 * dt) / (2 * tau_sigma[0] + dt);
+        Rxz[k + z*(j + y*i)] = a * Rxz[k + z*(j + y*i)] - b * (mu_tau_gamma_s[material_index] * (Uxz + Uzx));
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pxx(float dt, float* Px, float* Uxx, float* Uyy, float* Uzz, float* Rx, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* F) {
+__global__ void Pxx(float dt, float* Px, float* Uxx, float* Uyy, float* Uzz, float* Rx, unsigned int* S, float* eta_tau_p, float* mu_tau_s, float* F) {
     unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[k + z*(j + y*i)];
-        Px[k + z*(j + y*i)] += dt * ((eta_tau_gamma_p[material_index] - 1) * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * (mu_tau_gamma_s[material_index]-1) * (Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) + Rx[k + z*(j + y*i)] + F[k + z*(j + y*i)]);
+        Px[k + z*(j + y*i)] += dt * (eta_tau_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_s[material_index] * (Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) + Rx[k + z*(j + y*i)] + F[k + z*(j + y*i)]);
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pyy(float dt, float* Py, float* Uxx, float* Uyy, float* Uzz, float* Ry, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* F) {
+__global__ void Pyy(float dt, float* Py, float* Uxx, float* Uyy, float* Uzz, float* Ry, unsigned int* S, float* eta_tau_p, float* mu_tau_s, float* F) {
     unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[k + z*(j + y*i)];
-        Py[k + z*(j + y*i)] += dt * ((eta_tau_gamma_p[material_index]-1) * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * (mu_tau_gamma_s[material_index]-1) * (Uxx[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) + Ry[k + z*(j + y*i)] + F[k + z*(j + y*i)]);
+        Py[k + z*(j + y*i)] += dt * (eta_tau_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_s[material_index] * (Uxx[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) + Ry[k + z*(j + y*i)] + F[k + z*(j + y*i)]);
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pzz(float dt, float* Pz, float* Uxx, float* Uyy, float* Uzz, float* Rz, unsigned int* S, float* eta_tau_gamma_p, float* mu_tau_gamma_s, float* F) {
+__global__ void Pzz(float dt, float* Pz, float* Uxx, float* Uyy, float* Uzz, float* Rz, unsigned int* S, float* eta_tau_p, float* mu_tau_s, float* F) {
     unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
 
     if (i>=2 && i<x-2 && j>=2 && j<y-2 && k>=2 && k<z-2) {
         unsigned int material_index = S[k + z*(j + y*i)];
-        Pz[k + z*(j + y*i)] += dt * ((eta_tau_gamma_p[material_index]-1) * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * (mu_tau_gamma_s[material_index]-1) * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)]) + Rz[k + z*(j + y*i)] + F[k + z*(j + y*i)]);
+        Pz[k + z*(j + y*i)] += dt * (eta_tau_p[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)] + Uzz[k + z*(j + y*i)]) - 2 * mu_tau_s[material_index] * (Uxx[k + z*(j + y*i)] + Uyy[k + z*(j + y*i)]) + Rz[k + z*(j + y*i)] + F[k + z*(j + y*i)]);
     }
 }
 
@@ -219,7 +231,7 @@ __global__ void Pxy(float dt, float* Pxy, float* Ux, float* Uy, float* Rxy, unsi
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, unsigned int* S, float* mu_tau_gamma_s) {
+__global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, unsigned int* S, float* mu_tau_s) {
     unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
@@ -228,12 +240,12 @@ __global__ void Pyz(float dt, float* Pyz, float* Uy, float* Uz, float* Ryz, unsi
         float Uyz = - Uy[k+2+ z*(j + y*i)] + 27 * (Uy[k+1 + z*(j + y*i)] - Uy[k + z*(j + y*i)]) + Uy[k-1 + z*(j + y*i)];
         float Uzy = - Uz[k + z*(j+2 + y*i)] + 27 * (Uz[k + z*(j+1 + y*i)] - Uz[k + z*(j + y*i)]) + Uz[k + z*(j-1 + y*i)];
         unsigned int material_index = S[k + z*(j + y*i)];
-        Pyz[k + z*(j + y*i)] += dt * (mu_tau_gamma_s[material_index] * (Uyz + Uzy) + Ryz[k + z*(j + y*i)]);
+        Pyz[k + z*(j + y*i)] += dt * (mu_tau_s[material_index] * (Uyz + Uzy) + Ryz[k + z*(j + y*i)]);
     }
 }
 
 template<unsigned int x, unsigned int y, unsigned int z>
-__global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, unsigned int* S, float* mu_tau_gamma_s) {
+__global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, unsigned int* S, float* mu_tau_s) {
     unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int k = blockIdx.z * blockDim.z + threadIdx.z;
@@ -242,7 +254,7 @@ __global__ void Pxz(float dt, float* Pxz, float* Ux, float* Uz, float* Rxz, unsi
         float Uxz = - Ux[k+2+ z*(j + y*i)] + 27 * (Ux[k+1 + z*(j + y*i)] - Ux[k + z*(j + y*i)]) + Ux[k-1 + z*(j + y*i)];
         float Uzx = - Uz[k+ z*(j + y*(i+2))] + 27 * (Uz[k + z*(j + y*(i+1))] - Uz[k + z*(j + y*i)]) + Uz[k + z*(j + y*(i-1))];
         unsigned int material_index = S[k + z*(j + y*i)];
-        Pxz[k + z*(j + y*i)] += dt * (mu_tau_gamma_s[material_index] * (Uxz + Uzx) + Rxz[k + z*(j + y*i)]);
+        Pxz[k + z*(j + y*i)] += dt * (mu_tau_s[material_index] * (Uxz + Uzx) + Rxz[k + z*(j + y*i)]);
     }
 }
 

@@ -62,16 +62,20 @@ void Scene::Init() {
         m_device_materials.push_back(m.GetDeviceMaterial<float>(fd));
     }
 
-    // std::cout << "Eta Tau P : [";
-    // thrust::copy(m_device_materials.eta_tau_p_1.begin(), m_device_materials.eta_tau_p_1.end(), std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "]\n";
-    // std::cout << "Mu Tau S : [";
-    // thrust::copy(m_device_materials.mu_tau_s_1.begin(), m_device_materials.mu_tau_s_1.end(), std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "]\n";
+    std::cout << "Eta Tau P : [";
+    thrust::copy(m_device_materials.eta_tau_p.begin(), m_device_materials.eta_tau_p.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+    std::cout << "Eta Tau Gamma P : [";
+    thrust::copy(m_device_materials.eta_tau_gamma_p.begin(), m_device_materials.eta_tau_gamma_p.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+    std::cout << "Mu Tau S : [";
+    thrust::copy(m_device_materials.mu_tau_s.begin(), m_device_materials.mu_tau_s.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+    std::cout << "Mu Tau Gamma S : [";
+    thrust::copy(m_device_materials.mu_tau_gamma_s.begin(), m_device_materials.mu_tau_gamma_s.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
 
     /// Allocating Tau Sigma
     std::vector<float> tau_sigma = m_frequency_domain.TauSigma();
-    // m_tau_sigma.resize(tau_sigma.size());
-    // thrust::copy(m_tau_sigma.begin(), m_tau_sigma.end(), tau_sigma.begin());
     m_tau_sigma = thrust::device_vector<float>(tau_sigma.begin(), tau_sigma.end());
 }
