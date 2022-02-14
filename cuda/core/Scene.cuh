@@ -214,75 +214,6 @@ void Scene::Step() {
     // Let each kernels finising their tasks
     cudaDeviceSynchronize();
 
-    Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.x[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
-
-    Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.y[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
-
-    Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.z[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
-
-    Rxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.xy[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
-
-    Ryz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.yz[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
-
-    Rxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.xz[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
-
-    // Let each kernels finising their tasks
-    cudaDeviceSynchronize();
-
     Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
         thrust::raw_pointer_cast(&(P.x[0])),
@@ -354,4 +285,82 @@ void Scene::Step() {
 
     // Let each kernels finising their tasks
     cudaDeviceSynchronize();
+
+    Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_dt,
+        thrust::raw_pointer_cast(&(R.x[0])),
+        thrust::raw_pointer_cast(&(dU.x[0])),
+        thrust::raw_pointer_cast(&(dU.y[0])),
+        thrust::raw_pointer_cast(&(dU.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    );
+
+    Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_dt,
+        thrust::raw_pointer_cast(&(R.y[0])),
+        thrust::raw_pointer_cast(&(dU.x[0])),
+        thrust::raw_pointer_cast(&(dU.y[0])),
+        thrust::raw_pointer_cast(&(dU.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    );
+
+    Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_dt,
+        thrust::raw_pointer_cast(&(R.z[0])),
+        thrust::raw_pointer_cast(&(dU.x[0])),
+        thrust::raw_pointer_cast(&(dU.y[0])),
+        thrust::raw_pointer_cast(&(dU.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_gamma_p[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    );
+
+    Rxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_dt,
+        thrust::raw_pointer_cast(&(R.xy[0])),
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    );
+
+    Ryz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_dt,
+        thrust::raw_pointer_cast(&(R.yz[0])),
+        thrust::raw_pointer_cast(&(U.y[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    );
+
+    Rxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+        m_dt,
+        thrust::raw_pointer_cast(&(R.xz[0])),
+        thrust::raw_pointer_cast(&(U.x[0])),
+        thrust::raw_pointer_cast(&(U.z[0])),
+        thrust::raw_pointer_cast(&(m_M[0])),
+        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_gamma_s[0])),
+        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    );
+
+    // Let each kernels finising their tasks
+    cudaDeviceSynchronize();
+
+    // Finishing P update
+    auto func = saxpy_functor(- m_dt * 0.5);
+    thrust::transform(R.x.begin(), R.x.end(), P.x.begin(), P.x.begin(), func);
+    thrust::transform(R.y.begin(), R.y.end(), P.y.begin(), P.y.begin(), func);
+    thrust::transform(R.z.begin(), R.z.end(), P.z.begin(), P.z.begin(), func);
+    thrust::transform(R.xy.begin(), R.xy.end(), P.xy.begin(), P.xy.begin(), func);
+    thrust::transform(R.yz.begin(), R.yz.end(), P.yz.begin(), P.yz.begin(), func);
+    thrust::transform(R.xz.begin(), R.xz.end(), P.xz.begin(), P.xz.begin(), func);
 };
