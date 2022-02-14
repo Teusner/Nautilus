@@ -21,11 +21,11 @@ int main(void) {
     constexpr unsigned int y = 1000;
     constexpr unsigned int z = 5;
 
-    constexpr float dx = 0.01;
-    constexpr float dy = 0.01;
-    constexpr float dz = 0.01;
+    constexpr float dx = 0.1;
+    constexpr float dy = 0.1;
+    constexpr float dz = 0.1;
 
-    constexpr float dt = 1e-7;
+    constexpr float dt = 1e-6;
 
     // FrequencyDomain
     float omega_min = 2*M_PI*2.;
@@ -39,10 +39,10 @@ int main(void) {
     s.SetScene(s_M);
     s.Init();
 
-    SinEmitter e(50, 50, 2);
+    SinEmitter e(500, 500, 2);
     s.emitters.push_back(e);
 
-    unsigned int a = 500000;
+    unsigned int a = 5000;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, SinEmitter>();
         s.m_i ++;
