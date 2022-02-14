@@ -42,7 +42,7 @@ int main(void) {
     SinEmitter e(50, 50, 2);
     s.emitters.push_back(e);
 
-    unsigned int a = 50;
+    unsigned int a = 500;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, SinEmitter>();
         s.m_i ++;
@@ -52,11 +52,9 @@ int main(void) {
     }
 
     thrust::host_vector<float> P = s.P.x;
-    // thrust::transform(s.P.y.begin(), s.P.y.end(), s.P.y.begin(), P.begin(), thrust::plus<float>());
-    // thrust::transform(s.P.y.begin(), s.P.y.end(), P.begin(), P.begin(), thrust::plus<float>())
-    // thrust::transform(s.P.z.begin(), s.P.z.end(), P.begin(), P.begin(), thrust::plus<float>())
     std::vector<float> vec(P.begin(), P.end());
-    to_xarray("Pressure.npy", vec.begin(), vec.end(), x, y, z);
+    std::vector<std::size_t> shape = {x, y, z};
+    to_xarray("Pressure.npy", vec, shape);
 
     // std::cout << "P  : ";
     // float Px_sum = thrust::reduce(s.P.x.begin(), s.P.x.end(), 0.f);
