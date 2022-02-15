@@ -97,7 +97,6 @@ class Scene {
     public: thrust::device_vector<SinEmitter> emitters;
 
 
-    // @@@@@ Add Previous and Next Fields @@@@@
     
     /// ### Fields
     /// Pressure Field
@@ -114,15 +113,6 @@ class Scene {
 
     /// Emitter Pressure Field
     private: thrust::device_vector<float> E;
-
-    // /// Next Pressure Field
-    // private: PressureField<thrust::device_vector<float>> m_P;
-
-    // /// Next Velocity Field
-    // private: VelocityField<thrust::device_vector<float>> m_U;
-
-    // /// Next Memory Field
-    // private: MemoryField<thrust::device_vector<float>> m_R;
 
 
 
