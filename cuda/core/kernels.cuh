@@ -4,6 +4,8 @@
 #include <core/Module.cuh>
 #include <thrust/random.h>
 
+#include <cuda.h>
+
 
 template<unsigned int x, unsigned int y, unsigned int z, typename T>
 __global__ void F(float t, T* E, float* F) {
@@ -11,6 +13,28 @@ __global__ void F(float t, T* E, float* F) {
     T e = E[index];
     F[e.z + z*(e.y + y*e.x)] = e(t);
 }
+
+template <unsigned int x, unsigned int y, unsigned int z, unsigned int N>
+struct Bound {
+    float zeta_min, p;
+    Bound (float _zeta_min, float _p) : zeta_min(_zeta_min), p(_p) {};
+
+    __host__ __device__ float _value(int index, unsigned int size) const {
+        return max(0.f, abs(index-size/2.f) - size/2.f + N) * M_PI / N;
+    }
+
+    __host__ __device__ float _f(float v) const {
+        return (1 - zeta_min) * powf((1 + cosf(v)) / 2, p) + zeta_min;
+    }
+
+    __host__ __device__ float operator()(const int &index, float &v) const {
+        int i = index / (y * z);
+        int j = (index - z * y * i) / z;
+        int k = (index - z * (y * i + j));
+
+        return _f(_value(i, x)) * _f(_value(j, y)) * _f(_value(k, z));
+    }
+};
 
 template<unsigned int x, unsigned int y, unsigned int z>
 __global__ void Ux(float dt, float* alpha, float* Ux, float* Px, float* Pxy, float* Pxz, unsigned int* S, float* inv_rho) {

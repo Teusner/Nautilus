@@ -9,12 +9,13 @@
 #include "Module.cuh"
 #include "FrequencyDomain.cuh"
 #include "kernels.cuh"
+#include "utils/constant_memory.cuh"
 
 
+template <unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
 class Scene {
     /// Constructor with a dimension
-    public: Scene(const unsigned int x, const unsigned int y, const unsigned int z, const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain);
-
+    public: Scene(const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain);
 
 
     /// ### Scene Dimensions
@@ -114,6 +115,9 @@ class Scene {
     /// Emitter Pressure Field
     private: thrust::device_vector<float> E;
 
+    /// Absorbing Boundary Field
+    private: thrust::device_vector<float> B;
+
 
 
     /// ### Frequency Domain
@@ -141,7 +145,7 @@ class Scene {
     public: void Init();
 
     /// Step
-    public: template<unsigned int x, unsigned int y, unsigned int z, typename T> void Step();
+    public: void Step();
 
     /// Priority queue handling Events in priority order
     private : std::priority_queue<Event, std::vector<Event>, std::greater<Event>> m_events;
@@ -149,8 +153,24 @@ class Scene {
 
 
 /// Implementation
-template<unsigned int x, unsigned int y, unsigned int z, typename T>
-void Scene::Step() {
+template <unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+Scene<x, y, z, N, T>::Scene(const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_device_materials(0), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), dU(x*y*z), B(x*y*z), R(x*y*z*frequency_domain.l()) {
+    m_materials = std::vector<Material>(1, Material());
+    m_M = thrust::device_vector<float>(x * y * z, 0);
+    E = thrust::device_vector<float> (x * y * z, 0);
+
+    /// Absorbing Boundary Condition
+    float zeta_min = 0.05;
+    float p = 1.6;
+
+    auto Op = Bound<x, y, z, N>(zeta_min, p);
+    thrust::counting_iterator<int> idxfirst(0);
+    thrust::counting_iterator<int> idxlast = idxfirst + m_d.x * m_d.y * m_d.z;
+    thrust::transform(idxfirst, idxlast, B.begin(), B.begin(), Op);
+}
+
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+void Scene<x, y, z, N, T>::Step() {
     // Emitter Field computing
     F<x, y, z, T><<<1, 1>>>(m_dt*m_i, thrust::raw_pointer_cast(&(emitters[0])), thrust::raw_pointer_cast(&(E[0])));
 
@@ -363,4 +383,93 @@ void Scene::Step() {
     thrust::transform(R.xy.begin(), R.xy.end(), P.xy.begin(), P.xy.begin(), func);
     thrust::transform(R.yz.begin(), R.yz.end(), P.yz.begin(), P.yz.begin(), func);
     thrust::transform(R.xz.begin(), R.xz.end(), P.xz.begin(), P.xz.begin(), func);
+
+    cudaDeviceSynchronize();
+
+    /// Applying Absorbing Boundary Condition
+    thrust::transform(U.x.begin(), U.x.end(), B.begin(), U.x.begin(), thrust::multiplies<float>());
+    thrust::transform(U.y.begin(), U.y.end(), B.begin(), U.y.begin(), thrust::multiplies<float>());
+    thrust::transform(U.z.begin(), U.z.end(), B.begin(), U.z.begin(), thrust::multiplies<float>());
+    thrust::transform(P.x.begin(), P.x.end(), B.begin(), P.x.begin(), thrust::multiplies<float>());
+    thrust::transform(P.y.begin(), P.y.end(), B.begin(), P.y.begin(), thrust::multiplies<float>());
+    thrust::transform(P.z.begin(), P.z.end(), B.begin(), P.z.begin(), thrust::multiplies<float>());
+    thrust::transform(P.xy.begin(), P.xy.end(), B.begin(), P.xy.begin(), thrust::multiplies<float>());
+    thrust::transform(P.yz.begin(), P.yz.end(), B.begin(), P.yz.begin(), thrust::multiplies<float>());
+    thrust::transform(P.xz.begin(), P.xz.end(), B.begin(), P.xz.begin(), thrust::multiplies<float>());
+    thrust::transform(R.x.begin(), R.x.end(), B.begin(), R.x.begin(), thrust::multiplies<float>());
+    thrust::transform(R.y.begin(), R.y.end(), B.begin(), R.y.begin(), thrust::multiplies<float>());
+    thrust::transform(R.z.begin(), R.z.end(), B.begin(), R.z.begin(), thrust::multiplies<float>());
+    thrust::transform(R.xy.begin(), R.xy.end(), B.begin(), R.xy.begin(), thrust::multiplies<float>());
+    thrust::transform(R.yz.begin(), R.yz.end(), B.begin(), R.yz.begin(), thrust::multiplies<float>());
+    thrust::transform(R.xz.begin(), R.xz.end(), B.begin(), R.xz.begin(), thrust::multiplies<float>());
+
+    cudaDeviceSynchronize();
 };
+
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+void Scene<x, y, z, N, T>::AddMaterial(Material m) {
+    m_materials.push_back(m);
+}
+
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+void Scene<x, y, z, N, T>::PrintMaterials() const {
+    std::cout << "Materials : ";
+    for (auto const &m : m_materials)
+        std::cout << m << " ";
+}
+
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+void Scene<x, y, z, N, T>::SetScene(thrust::device_vector<unsigned int> &M) {
+    // Checking scene size
+    if (M.size() != m_d.x * m_d.y * m_d.z)
+        throw std::invalid_argument("Scene vector size does not match the Scene dimensions !");
+
+    // Checking undefined material
+    if (thrust::transform_reduce(M.begin(), M.end(), CheckUndefinedMaterial(m_materials.size()), false, thrust::plus<bool>()))
+        throw std::invalid_argument("Scene vector contains uninitialized materials !");
+
+    m_M = M;
+}
+
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+void Scene<x, y, z, N, T>::TriggerNextEvent() {
+    Event e = m_events.top();
+    if (m_i < e.i())
+        throw std::invalid_argument("Scene time is prior to the time of the next Event !");
+
+    if (m_i > e.i())
+        throw std::invalid_argument("Scene time is later to the time of the next Event !");
+
+    e.Callback();
+    m_events.pop();
+}
+
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+void Scene<x, y, z, N, T>::Init() {
+    m_alpha[0] = 1.f / (24.f * m_dx.x);
+    m_alpha[1] = 1.f / (24.f * m_dx.y);
+    m_alpha[2] = 1.f / (24.f * m_dx.z);
+
+    /// Allocating DeviceMaterial
+    FrequencyDomain fd = m_frequency_domain;
+    for (const auto &m : m_materials) {
+        m_device_materials.push_back(m.GetDeviceMaterial<float>(fd));
+    }
+
+    std::cout << "Eta Tau P : [";
+    thrust::copy(m_device_materials.eta_tau_p.begin(), m_device_materials.eta_tau_p.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+    std::cout << "Eta Tau Gamma P : [";
+    thrust::copy(m_device_materials.eta_tau_gamma_p.begin(), m_device_materials.eta_tau_gamma_p.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+    std::cout << "Mu Tau S : [";
+    thrust::copy(m_device_materials.mu_tau_s.begin(), m_device_materials.mu_tau_s.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+    std::cout << "Mu Tau Gamma S : [";
+    thrust::copy(m_device_materials.mu_tau_gamma_s.begin(), m_device_materials.mu_tau_gamma_s.end(), std::ostream_iterator<float>(std::cout, " "));
+    std::cout << "]\n";
+
+    /// Allocating Tau Sigma
+    std::vector<float> tau_sigma = m_frequency_domain.TauSigma();
+    m_tau_sigma = thrust::device_vector<float>(tau_sigma.begin(), tau_sigma.end());
+}

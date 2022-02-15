@@ -1,4 +1,6 @@
 from distutils.command.build import build
+import enum
+from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
 

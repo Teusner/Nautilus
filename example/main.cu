@@ -25,6 +25,8 @@ int main(void) {
     constexpr float dy = 1;
     constexpr float dz = 1;
 
+    constexpr unsigned int N = 20;
+
     constexpr float dt = 1e-5;
 
     // FrequencyDomain
@@ -33,7 +35,7 @@ int main(void) {
     std::vector<float> tau_sigma = {1 / (2*M_PI*10)};
     FrequencyDomain freq_dom(omega_min, omega_max, tau_sigma);
 
-    Scene s(x, y, z, dx, dy, dz, dt, freq_dom);
+    Scene<x, y, z, N, SinEmitter> s(dx, dy, dz, dt, freq_dom);
 
     thrust::device_vector<unsigned int> s_M(x * y * z, 0);
     s.SetScene(s_M);
@@ -42,9 +44,9 @@ int main(void) {
     SinEmitter e(50, 50, 50);
     s.emitters.push_back(e);
 
-    unsigned int a = 10000;
+    unsigned int a = 4000;
     for (unsigned int i = 0; i < a; i++) {
-        s.Step<x, y, z, SinEmitter>();
+        s.Step();
         s.m_i ++;
         if (s.m_i%1000 == 0) {
             std::cout << "Time : " << s.Time() << " s" << std::endl;
