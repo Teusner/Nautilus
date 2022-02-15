@@ -17,15 +17,15 @@
 
 
 int main(void) {
-    constexpr unsigned int x = 1000;
-    constexpr unsigned int y = 1000;
-    constexpr unsigned int z = 5;
+    constexpr unsigned int x = 100;
+    constexpr unsigned int y = 100;
+    constexpr unsigned int z = 100;
 
-    constexpr float dx = 0.1;
-    constexpr float dy = 0.1;
-    constexpr float dz = 0.1;
+    constexpr float dx = 1;
+    constexpr float dy = 1;
+    constexpr float dz = 1;
 
-    constexpr float dt = 1e-6;
+    constexpr float dt = 1e-5;
 
     // FrequencyDomain
     float omega_min = 2*M_PI*2.;
@@ -39,10 +39,10 @@ int main(void) {
     s.SetScene(s_M);
     s.Init();
 
-    SinEmitter e(500, 500, 2);
+    SinEmitter e(50, 50, 50);
     s.emitters.push_back(e);
 
-    unsigned int a = 5000;
+    unsigned int a = 10000;
     for (unsigned int i = 0; i < a; i++) {
         s.Step<x, y, z, SinEmitter>();
         s.m_i ++;
@@ -59,30 +59,5 @@ int main(void) {
     std::vector<float> Pz(h_Pz.begin(), h_Pz.end());
     to_xarray("Pressure.npy", Px, Py, Pz, x, y, z);
 
-    // std::cout << "P  : ";
-    // float Px_sum = thrust::reduce(s.P.x.begin(), s.P.x.end(), 0.f);
-    // std::cout << "[" << Px_sum << "] ";
-    // thrust::copy(s.P.x.begin() + 1000, s.P.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "\nPxy : ";
-    // float Pxy_sum = thrust::reduce(s.P.xy.begin(), s.P.xy.end(), 0.f);
-    // std::cout << "[" << Pxy_sum << "] ";
-    // thrust::copy(s.P.xy.begin() + 1000, s.P.xy.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "\nUx  : ";
-    // float Ux_sum = thrust::reduce(s.U.x.begin(), s.U.x.end(), 0.f);
-    // std::cout << "[" << Ux_sum << "] ";
-    // thrust::copy(s.U.x.begin() + 1000, s.U.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "\nUxx  : ";
-    // float Uxx_sum = thrust::reduce(s.dU.x.begin(), s.dU.x.end(), 0.f);
-    // std::cout << "[" << Uxx_sum << "] ";
-    // thrust::copy(s.dU.x.begin() + 1000, s.dU.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "\nRx : ";
-    // float Rx_sum = thrust::reduce(s.R.x.begin(), s.R.x.end(), 0.f);
-    // std::cout << "[" << Rx_sum << "] ";
-    // thrust::copy(s.R.x.begin() + 1000, s.R.x.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    // std::cout << "\nRxy : ";
-    // float Rxy_sum = thrust::reduce(s.R.xy.begin(), s.R.xy.end(), 0.f);
-    // std::cout << "[" << Rxy_sum << "] ";
-    // thrust::copy(s.R.xy.begin() + 1000, s.R.xy.begin() + 1015, std::ostream_iterator<float>(std::cout, " "));
-    
     return 0;
 }

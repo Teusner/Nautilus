@@ -12,12 +12,12 @@ if __name__ == "__main__":
     print(A.shape)
 
     fig, ax = plt.subplots()
-    data = ax.imshow(np.sum(A[:, :, 2], axis=2), aspect="equal", cmap="jet", vmin=m, vmax=M)
+    data = ax.imshow(np.sum(A[:, :, 25], axis=2), aspect="equal", cmap="jet", vmin=m, vmax=M)
     fig.colorbar(data, extend='both')
-    plt.show()
+    # plt.show()
 
-    # for i in range(A.shape[2]):
-    #     Im = A[:, :, i]
-    #     print(f"{i}: [{np.mean(Im)}, {np.std(Im)}]")
-    #     data = ax.imshow(Im, aspect="equal", cmap="jet", vmin=m, vmax=M)
-    #     plt.pause(1)
+    for i in range(A.shape[2]):
+        Im = np.sum(A[:, :, i], axis=2)
+        print(f"{i}: [{np.mean(Im)}, {np.std(Im)}]")
+        data = ax.imshow(Im, aspect="equal", cmap="jet", vmin=m, vmax=M)
+        plt.pause(0.3)
