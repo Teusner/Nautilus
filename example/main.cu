@@ -25,7 +25,7 @@ int main(void) {
     constexpr float dy = 1;
     constexpr float dz = 1;
 
-    constexpr unsigned int N = 20;
+    constexpr unsigned int N = 15;
 
     constexpr float dt = 1e-5;
 

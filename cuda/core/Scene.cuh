@@ -160,7 +160,7 @@ Scene<x, y, z, N, T>::Scene(const float dx, const float dy, const float dz, cons
     E = thrust::device_vector<float> (x * y * z, 0);
 
     /// Absorbing Boundary Condition
-    float zeta_min = 0.05;
+    float zeta_min = 0.95;
     float p = 1.6;
 
     auto Op = Bound<x, y, z, N>(zeta_min, p);

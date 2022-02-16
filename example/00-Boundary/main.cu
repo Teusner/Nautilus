@@ -17,7 +17,7 @@ int main(void) {
     thrust::device_vector<float> d_B(x*y*z);
 
     /// Applying boundary on the field
-    float zeta_min = 0.05;
+    float zeta_min = 0.95;
     float p = 2;
 
     auto Op = Bound<x, y, z, N>(zeta_min, p);
