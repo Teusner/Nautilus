@@ -29,6 +29,11 @@ set(CUDA_NVCC_FLAGS -gencode=arch=compute_50,code=sm_50 CACHE STRING "NVidia CUD
 set(CUDA_NVCC_FLAGS_DEBUG -g -G -O0)
 set(CUDA_NVCC_FLAGS_RELEASE -O3 -lineinfo)
 
+## Thrust configuration
+set(THRUST_HOST_SYSTEM CPP)
+set(THRUST_DEVICE_SYSTEM CUDA)
+set(THRUST_CPP_DIALECT 14)
+
 ## Source file containing the "main" function
 set(MAIN_SOURCES src/main.cpp)
 ## Specify a name for the generated executable file
