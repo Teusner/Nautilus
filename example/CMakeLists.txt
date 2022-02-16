@@ -1,4 +1,5 @@
-add_executable(example main.cu ../cuda/core/Scene.cu ../cuda/utils/constant_memory.cu)
-target_link_libraries(example export)
+add_executable(example main.cu)
+target_link_libraries(example ${PROJECT_NAME})
+set_target_properties(example PROPERTIES CUDA_ARCHITECTURES "50")
 
 add_subdirectory(00-Boundary)

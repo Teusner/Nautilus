@@ -1,2 +1,2 @@
-add_executable(test_material test_material.cu)
+# add_executable(test_material test_material.cu)
 add_subdirectory(core)

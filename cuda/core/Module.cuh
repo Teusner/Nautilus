@@ -99,7 +99,7 @@ inline std::ostream& operator<<(std::ostream& os, const Module &m) {
     return os << m.String() << " : {" << m.x << ", " << m.y << ", " << m.z <<  "}\n" ;
 }
 
-inline void Reciever::Record(float t, float s) {
-    m_t.push_back(t);
-    m_s.push_back(s);
+inline __host__ __device__ void Reciever::Record(float t, float s) {
+    // m_t.push_back(t);
+    // m_s.push_back(s);
 }

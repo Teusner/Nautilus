@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "core/kernels.cuh"
-#include "export.h"
+#include "core/export.cuh"
 
 #include <thrust/device_vector.h>
 

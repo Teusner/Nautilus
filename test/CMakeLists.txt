@@ -8,21 +8,21 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(event_test TestEvent.cu)
-target_link_libraries(event_test gtest_main)
+target_link_libraries(event_test gtest_main ${PROJECT_NAME})
 add_test(EventTest event_test)
 
 add_executable(field_test TestField.cu)
-target_link_libraries(field_test gtest_main)
+target_link_libraries(field_test gtest_main ${PROJECT_NAME})
 add_test(FieldTest field_test)
 
 add_executable(emitter_test TestEmitter.cu)
-target_link_libraries(emitter_test gtest_main)
+target_link_libraries(emitter_test gtest_main ${PROJECT_NAME})
 add_test(EmitterTest emitter_test)
 
 add_executable(reciever_test TestReciever.cu)
-target_link_libraries(reciever_test gtest_main)
+target_link_libraries(reciever_test gtest_main ${PROJECT_NAME})
 add_test(RecieverTest reciever_test)
 
 add_executable(frequency_domain_test TestFrequencyDomain.cu)
-target_link_libraries(frequency_domain_test gtest_main)
+target_link_libraries(frequency_domain_test gtest_main ${PROJECT_NAME})
 add_test(FrequencyDomainTest frequency_domain_test)

@@ -7,7 +7,7 @@
 #include "core/FrequencyDomain.cuh"
 #include "core/kernels.cuh"
 
-#include "export.h"
+#include "core/export.cuh"
 
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
@@ -44,7 +44,7 @@ int main(void) {
     SinEmitter e(50, 50, 50);
     s.emitters.push_back(e);
 
-    unsigned int a = 4000;
+    unsigned int a = 1000;
     for (unsigned int i = 0; i < a; i++) {
         s.Step();
         s.m_i ++;

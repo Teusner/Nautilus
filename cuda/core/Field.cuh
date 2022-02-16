@@ -103,7 +103,7 @@ struct PressureField {
     /// Array of structure getter at index
     struct Ref {
         T &x; T &y; T &z; T &xy; T &yz; T &xz;
-        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)), xy(thrust::get<3>(z)), yz(thrust::get<4>(z)), yz(thrust::get<5>(z)){}
+        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)), xy(thrust::get<3>(z)), yz(thrust::get<4>(z)), xz(thrust::get<5>(z)){}
     };
 };
 
@@ -160,6 +160,6 @@ struct MemoryField {
     /// Array of structure getter at index
     struct Ref {
         T &x; T &y; T &z; T &xy; T &yz; T &xz;
-        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)), xy(thrust::get<3>(z)), yz(thrust::get<4>(z)), yz(thrust::get<5>(z)){}
+        Ref(iterator z) : x(thrust::get<0>(z)), y(thrust::get<1>(z)), z(thrust::get<2>(z)), xy(thrust::get<3>(z)), yz(thrust::get<4>(z)), xz(thrust::get<5>(z)){}
     };
 };
