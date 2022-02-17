@@ -25,7 +25,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 ## NVCC (CUDA compiler) options
-set(CUDA_NVCC_FLAGS -gencode=arch=compute_50,code=sm_50 CACHE STRING "NVidia CUDA compiler flags" FORCE)
+set(CUDA_NVCC_FLAGS -gencode=arch=compute_60,code=compute_60 CACHE STRING "NVidia CUDA compiler flags" FORCE)
 set(CUDA_NVCC_FLAGS_DEBUG -g -G -O0)
 set(CUDA_NVCC_FLAGS_RELEASE -O3 -lineinfo)
 
@@ -45,7 +45,7 @@ find_package(xtensor REQUIRED)
 add_library(${PROJECT_NAME} INTERFACE)
 target_link_libraries(${PROJECT_NAME} INTERFACE xtensor)
 target_include_directories(${PROJECT_NAME} INTERFACE ${xtensor_INCLUDE_DIRS} cuda/core)
-set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES "50")
+set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES "60")
 
 ## Tests
 enable_testing()

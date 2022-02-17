@@ -44,11 +44,10 @@ int main(void) {
     SinEmitter e(50, 50, 50);
     s.emitters.push_back(e);
 
-    unsigned int a = 1000;
+    unsigned int a = 50;
     for (unsigned int i = 0; i < a; i++) {
         s.Step();
-        s.m_i ++;
-        if (s.m_i%1000 == 0) {
+        if (s.m_i%10 == 0) {
             std::cout << "Time : " << s.Time() << " s" << std::endl;
         }
     }

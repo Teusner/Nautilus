@@ -211,7 +211,7 @@ void Scene<x, y, z, N, T>::Step() {
     );
 
     // Let each kernels finising their tasks
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_alpha[0],
@@ -232,7 +232,7 @@ void Scene<x, y, z, N, T>::Step() {
     );
 
     // Let each kernels finising their tasks
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
@@ -304,7 +304,7 @@ void Scene<x, y, z, N, T>::Step() {
     );
 
     // Let each kernels finising their tasks
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
         m_dt,
@@ -373,37 +373,39 @@ void Scene<x, y, z, N, T>::Step() {
     );
 
     // Let each kernels finising their tasks
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     // Finishing P update
-    auto func = saxpy_functor(- m_dt * 0.5);
-    thrust::transform(R.x.begin(), R.x.end(), P.x.begin(), P.x.begin(), func);
-    thrust::transform(R.y.begin(), R.y.end(), P.y.begin(), P.y.begin(), func);
-    thrust::transform(R.z.begin(), R.z.end(), P.z.begin(), P.z.begin(), func);
-    thrust::transform(R.xy.begin(), R.xy.end(), P.xy.begin(), P.xy.begin(), func);
-    thrust::transform(R.yz.begin(), R.yz.end(), P.yz.begin(), P.yz.begin(), func);
-    thrust::transform(R.xz.begin(), R.xz.end(), P.xz.begin(), P.xz.begin(), func);
+    // auto func = saxpy_functor(- m_dt * 0.5);
+    // thrust::transform(R.x.begin(), R.x.end(), P.x.begin(), P.x.begin(), func);
+    // thrust::transform(R.y.begin(), R.y.end(), P.y.begin(), P.y.begin(), func);
+    // thrust::transform(R.z.begin(), R.z.end(), P.z.begin(), P.z.begin(), func);
+    // thrust::transform(R.xy.begin(), R.xy.end(), P.xy.begin(), P.xy.begin(), func);
+    // thrust::transform(R.yz.begin(), R.yz.end(), P.yz.begin(), P.yz.begin(), func);
+    // thrust::transform(R.xz.begin(), R.xz.end(), P.xz.begin(), P.xz.begin(), func);
 
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     /// Applying Absorbing Boundary Condition
-    thrust::transform(U.x.begin(), U.x.end(), B.begin(), U.x.begin(), thrust::multiplies<float>());
-    thrust::transform(U.y.begin(), U.y.end(), B.begin(), U.y.begin(), thrust::multiplies<float>());
-    thrust::transform(U.z.begin(), U.z.end(), B.begin(), U.z.begin(), thrust::multiplies<float>());
-    thrust::transform(P.x.begin(), P.x.end(), B.begin(), P.x.begin(), thrust::multiplies<float>());
-    thrust::transform(P.y.begin(), P.y.end(), B.begin(), P.y.begin(), thrust::multiplies<float>());
-    thrust::transform(P.z.begin(), P.z.end(), B.begin(), P.z.begin(), thrust::multiplies<float>());
-    thrust::transform(P.xy.begin(), P.xy.end(), B.begin(), P.xy.begin(), thrust::multiplies<float>());
-    thrust::transform(P.yz.begin(), P.yz.end(), B.begin(), P.yz.begin(), thrust::multiplies<float>());
-    thrust::transform(P.xz.begin(), P.xz.end(), B.begin(), P.xz.begin(), thrust::multiplies<float>());
-    thrust::transform(R.x.begin(), R.x.end(), B.begin(), R.x.begin(), thrust::multiplies<float>());
-    thrust::transform(R.y.begin(), R.y.end(), B.begin(), R.y.begin(), thrust::multiplies<float>());
-    thrust::transform(R.z.begin(), R.z.end(), B.begin(), R.z.begin(), thrust::multiplies<float>());
-    thrust::transform(R.xy.begin(), R.xy.end(), B.begin(), R.xy.begin(), thrust::multiplies<float>());
-    thrust::transform(R.yz.begin(), R.yz.end(), B.begin(), R.yz.begin(), thrust::multiplies<float>());
-    thrust::transform(R.xz.begin(), R.xz.end(), B.begin(), R.xz.begin(), thrust::multiplies<float>());
+    // thrust::transform(U.x.begin(), U.x.end(), B.begin(), U.x.begin(), thrust::multiplies<float>());
+    // thrust::transform(U.y.begin(), U.y.end(), B.begin(), U.y.begin(), thrust::multiplies<float>());
+    // thrust::transform(U.z.begin(), U.z.end(), B.begin(), U.z.begin(), thrust::multiplies<float>());
+    // thrust::transform(P.x.begin(), P.x.end(), B.begin(), P.x.begin(), thrust::multiplies<float>());
+    // thrust::transform(P.y.begin(), P.y.end(), B.begin(), P.y.begin(), thrust::multiplies<float>());
+    // thrust::transform(P.z.begin(), P.z.end(), B.begin(), P.z.begin(), thrust::multiplies<float>());
+    // thrust::transform(P.xy.begin(), P.xy.end(), B.begin(), P.xy.begin(), thrust::multiplies<float>());
+    // thrust::transform(P.yz.begin(), P.yz.end(), B.begin(), P.yz.begin(), thrust::multiplies<float>());
+    // thrust::transform(P.xz.begin(), P.xz.end(), B.begin(), P.xz.begin(), thrust::multiplies<float>());
+    // thrust::transform(R.x.begin(), R.x.end(), B.begin(), R.x.begin(), thrust::multiplies<float>());
+    // thrust::transform(R.y.begin(), R.y.end(), B.begin(), R.y.begin(), thrust::multiplies<float>());
+    // thrust::transform(R.z.begin(), R.z.end(), B.begin(), R.z.begin(), thrust::multiplies<float>());
+    // thrust::transform(R.xy.begin(), R.xy.end(), B.begin(), R.xy.begin(), thrust::multiplies<float>());
+    // thrust::transform(R.yz.begin(), R.yz.end(), B.begin(), R.yz.begin(), thrust::multiplies<float>());
+    // thrust::transform(R.xz.begin(), R.xz.end(), B.begin(), R.xz.begin(), thrust::multiplies<float>());
 
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
+
+    m_i += 1;
 };
 
 template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
@@ -425,8 +427,10 @@ void Scene<x, y, z, N, T>::SetScene(thrust::device_vector<unsigned int> &M) {
         throw std::invalid_argument("Scene vector size does not match the Scene dimensions !");
 
     // Checking undefined material
-    if (thrust::transform_reduce(M.begin(), M.end(), CheckUndefinedMaterial(m_materials.size()), false, thrust::plus<bool>()))
-        throw std::invalid_argument("Scene vector contains uninitialized materials !");
+    // unsigned int n = m_materials.size();
+    // bool undefined_material = thrust::transform_reduce(M.begin(), M.end(), CheckUndefinedMaterial(n), false, thrust::plus<bool>());
+    // if (undefined_material)
+    //     throw std::invalid_argument("Scene vector contains uninitialized materials !");
 
     m_M = M;
 }
