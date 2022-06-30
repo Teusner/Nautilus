@@ -142,3 +142,17 @@ inline std::ostream &operator<<(std::ostream &os, const Material *m) {
                         << m->Cp() << ", " << m->Qp() << "], S: ["
                         << m->Cs() << ", " << m->Qs() << "]}";
 }
+
+template<typename T>
+inline std::ostream &operator<<(std::ostream &os, const DeviceMaterial<T> &m) {
+    return os << "{1/rho: " << m.inv_rho << ", Eta/P : [tau_p :"
+                        << m.eta_tau_p << ", tau_gamma_p : " << m.eta_tau_gamma_p << "], Mu/S: [tau_s : "
+                        << m.mu_tau_s << ", tau_gamma_s : " << m.mu_tau_gamma_s << "]}";
+}
+
+template<typename T>
+inline std::ostream &operator<<(std::ostream &os, const DeviceMaterial<T> *m) {
+    return os << "{rho: " << m->inv_rho << ", P : ["
+                        << m->eta_tau_p << ", " << m->eta_tau_gamma_p << "], S: ["
+                        << m->mu_tau_s << ", " << m->mu_tau_gamma_s << "]}";
+}

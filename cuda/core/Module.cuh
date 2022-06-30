@@ -56,14 +56,22 @@ class SinEmitter : public Module {
     // Default Constructor
     public:  __host__ __device__ SinEmitter() {};
 
+    public:  __host__ __device__ SinEmitter(float frequency) : m_frequency(frequency) {};
+
     /// Constructor with grid position as unsigned int and function
-    public: __host__ __device__ SinEmitter(unsigned int i, unsigned int j, unsigned int k) : Module(i, j, k) {};
+    public: __host__ __device__ SinEmitter(unsigned int i, unsigned int j, unsigned int k, float amplitude, float frequency) : Module(i, j, k), m_amplitude(amplitude), m_frequency(frequency) {};
 
     /// Constructor with grid position as dim3 and function
     public: __host__ __device__ SinEmitter(dim3 d) : Module(d) {};
 
     /// Call operator
-    public: __host__ __device__ float operator()(float t) const { return 0.1*sin(2*M_PI*10*t); };
+    public: __host__ __device__ float operator()(float t) const { return m_amplitude*sin(2*M_PI*m_frequency*t); };
+
+    // amplitude
+    double m_amplitude;
+
+    // frequency
+    double m_frequency;
 };
 
 class Reciever : public Module {

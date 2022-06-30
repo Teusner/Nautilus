@@ -2,6 +2,9 @@
 
 #include <queue>
 #include <vector>
+#include <memory>
+
+#include "export.cuh"
 
 #include "Material.cuh"
 #include "Field.cuh"
@@ -11,8 +14,10 @@
 #include "kernels.cuh"
 #include "utils/constant_memory.cuh"
 
+#include "Solver_Reflection.cuh"
 
-template <unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
+
+template <unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
 class Scene {
     /// Constructor with a dimension
     public: Scene(const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain);
@@ -41,13 +46,13 @@ class Scene {
     public: float dZ() const { return m_dx.z; };
 
     /// Scene dimension
-    private: const dim3 m_d;
+    public: const dim3 m_d;
 
     /// Spatial step
-    private: const float3 m_dx;
+    public: const float3 m_dx;
 
     /// m_alpha = 1/(24*m_dx)
-    private: thrust::device_vector<float> m_alpha;
+    public: thrust::device_vector<float> m_alpha;
 
 
     /// ### Material and Scene
@@ -64,13 +69,13 @@ class Scene {
     public: void SetScene(thrust::device_vector<unsigned int> &M);
 
     /// Vector of Material
-    private: std::vector<Material> m_materials;
+    public: std::vector<Material> m_materials;
 
     /// Device Allocated Materials (SOA)
-    private: DeviceMaterials<thrust::device_vector<float>> m_device_materials;
+    public: DeviceMaterials<thrust::device_vector<float>> m_device_materials;
 
     /// Scene description vector
-    private: thrust::device_vector<unsigned int> m_M;
+    public: thrust::device_vector<unsigned int> m_M;
 
 
 
@@ -86,7 +91,7 @@ class Scene {
     public: unsigned int Increment() const { return m_i; };
 
     /// Time Step
-    private: float m_dt;
+    public: float m_dt;
     
     /// Time Increment
     public: unsigned int m_i;
@@ -110,13 +115,13 @@ class Scene {
     public: MemoryField<thrust::device_vector<float>> R;
 
     /// Derivative of Velocity Field
-    private: VelocityField<thrust::device_vector<float>> dU;
+    public: VelocityField<thrust::device_vector<float>> dU;
 
     /// Emitter Pressure Field
-    private: thrust::device_vector<float> E;
+    public: thrust::device_vector<float> E;
 
     /// Absorbing Boundary Field
-    private: thrust::device_vector<float> B;
+    public: thrust::device_vector<float> B;
 
 
 
@@ -128,9 +133,9 @@ class Scene {
     public: FrequencyDomain GetFrequencyDomain() const { return m_frequency_domain; };
 
     /// FrequencyDomain
-    private: FrequencyDomain m_frequency_domain;
+    public: FrequencyDomain m_frequency_domain;
 
-    private: thrust::device_vector<float> m_tau_sigma;
+    public: thrust::device_vector<float> m_tau_sigma;
 
 
 
@@ -153,229 +158,232 @@ class Scene {
 
 
 /// Implementation
-template <unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-Scene<x, y, z, N, T>::Scene(const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_device_materials(0), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), dU(x*y*z), B(x*y*z), R(x*y*z*frequency_domain.l()) {
+template <unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+Scene<x, y, z, N, T, solver>::Scene(const float dx, const float dy, const float dz, const float dt, FrequencyDomain frequency_domain) : m_d(x, y, z), m_dx({dx, dy, dz}), m_dt(dt), m_alpha(3), m_device_materials(0), m_frequency_domain(frequency_domain), P(x*y*z), U(x*y*z), dU(x*y*z), B(x*y*z), R(x*y*z*frequency_domain.l()) {
     m_materials = std::vector<Material>(1, Material());
-    m_M = thrust::device_vector<float>(x * y * z, 0);
-    E = thrust::device_vector<float> (x * y * z, 0);
+    m_M = thrust::device_vector<unsigned int>(x*y*z, 0);
+    E = thrust::device_vector<float> (x*y*z, 0);
+    B = thrust::device_vector<float> (x*y*z, 0);
+
+    static_cast<solver*>(this)->Init();
 
     /// Absorbing Boundary Condition
-    float zeta_min = 0.95;
-    float p = 1.6;
+//     float zeta_min = 0.95;
+//     float p = 1.6;
 
-    auto Op = Bound<x, y, z, N>(zeta_min, p);
-    thrust::counting_iterator<int> idxfirst(0);
-    thrust::counting_iterator<int> idxlast = idxfirst + m_d.x * m_d.y * m_d.z;
-    thrust::transform(idxfirst, idxlast, B.begin(), B.begin(), Op);
+//     auto Op = Bound<x, y, z, N>(zeta_min, p);
+//     thrust::counting_iterator<int> idxfirst(0);
+//     thrust::counting_iterator<int> idxlast = idxfirst + m_d.x * m_d.y * m_d.z;
+//     thrust::transform(idxfirst, idxlast, B.begin(), B.begin(), Op);
 }
 
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-void Scene<x, y, z, N, T>::Step() {
-    // Emitter Field computing
-    F<x, y, z, T><<<1, 1>>>(m_dt*m_i, thrust::raw_pointer_cast(&(emitters[0])), thrust::raw_pointer_cast(&(E[0])));
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+void Scene<x, y, z, N, T, solver>::Step() {
+    // // Emitter Field computing
+    // F<x, y, z, T><<<1, emitters.size()>>>(m_dt*m_i, thrust::raw_pointer_cast(emitters.data()), thrust::raw_pointer_cast(E.data()));
 
-    dim3 ThreadPerBlock(4, 4, 4);
-    dim3 GridDimension(x / ThreadPerBlock.x, y / ThreadPerBlock.y, z / ThreadPerBlock.z);
+    // dim3 ThreadPerBlock(4, 4, 4);
+    // dim3 GridDimension(int(x/m_dx.x) / ThreadPerBlock.x, int(y/m_dx.y) / ThreadPerBlock.y, int(z/m_dx.z) / ThreadPerBlock.z);
 
-    Ux<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(m_alpha[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(P.x[0])),
-        thrust::raw_pointer_cast(&(P.xy[0])),
-        thrust::raw_pointer_cast(&(P.xz[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
-    );
+    // Ux<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&m_alpha[0]),
+    //     thrust::raw_pointer_cast(U.x.data()),
+    //     thrust::raw_pointer_cast(P.x.data()),
+    //     thrust::raw_pointer_cast(P.xy.data()),
+    //     thrust::raw_pointer_cast(P.xz.data()),
+    //     thrust::raw_pointer_cast(m_M.data()),
+    //     thrust::raw_pointer_cast(m_device_materials.inv_rho.data())
+    // );
 
-    Uy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(m_alpha[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(P.y[0])),
-        thrust::raw_pointer_cast(&(P.xy[0])),
-        thrust::raw_pointer_cast(&(P.yz[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
-    );
+    // Uy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(m_alpha[0])),
+    //     thrust::raw_pointer_cast(&(U.y[0])),
+    //     thrust::raw_pointer_cast(&(P.y[0])),
+    //     thrust::raw_pointer_cast(&(P.xy[0])),
+    //     thrust::raw_pointer_cast(&(P.yz[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
+    // );
 
-    Uz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(m_alpha[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(P.z[0])),
-        thrust::raw_pointer_cast(&(P.yz[0])),
-        thrust::raw_pointer_cast(&(P.xz[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
-    );
+    // Uz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(m_alpha[0])),
+    //     thrust::raw_pointer_cast(&(U.z[0])),
+    //     thrust::raw_pointer_cast(&(P.z[0])),
+    //     thrust::raw_pointer_cast(&(P.yz[0])),
+    //     thrust::raw_pointer_cast(&(P.xz[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.inv_rho[0]))
+    // );
 
-    // Let each kernels finising their tasks
+    // // Let each kernels finising their tasks
     // cudaDeviceSynchronize();
 
-    Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_alpha[0],
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(dU.x[0]))
-    );
+    // Uxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_alpha[0],
+    //     thrust::raw_pointer_cast(&(U.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0]))
+    // );
 
-    Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_alpha[1],
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(dU.y[0]))
-    );
+    // Uyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_alpha[1],
+    //     thrust::raw_pointer_cast(&(U.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0]))
+    // );
 
-    Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_alpha[2],
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(dU.z[0]))
-    );
+    // Uzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_alpha[2],
+    //     thrust::raw_pointer_cast(&(U.z[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0]))
+    // );
 
-    // Let each kernels finising their tasks
+    // // Let each kernels finising their tasks
     // cudaDeviceSynchronize();
 
-    Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(P.x[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(R.x[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(E[0]))
-    );
+    // Pxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(P.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0])),
+    //     thrust::raw_pointer_cast(&(R.x[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(E[0]))
+    // );
 
-    Pyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(P.y[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(R.y[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(E[0]))
-    );
+    // Pyy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(P.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0])),
+    //     thrust::raw_pointer_cast(&(R.y[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(E[0]))
+    // );
 
-    Pzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(P.z[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(R.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(E[0]))
-    );
+    // Pzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(P.z[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0])),
+    //     thrust::raw_pointer_cast(&(R.z[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(E[0]))
+    // );
 
-    Pxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(P.xy[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(R.xy[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0]))
-    );
+    // Pxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(P.xy[0])),
+    //     thrust::raw_pointer_cast(&(U.x[0])),
+    //     thrust::raw_pointer_cast(&(U.y[0])),
+    //     thrust::raw_pointer_cast(&(R.xy[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0]))
+    // );
 
-    Pyz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(P.yz[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(R.yz[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0]))
-    );
+    // Pyz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(P.yz[0])),
+    //     thrust::raw_pointer_cast(&(U.y[0])),
+    //     thrust::raw_pointer_cast(&(U.z[0])),
+    //     thrust::raw_pointer_cast(&(R.yz[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0]))
+    // );
 
-    Pxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(P.xz[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(R.xz[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0]))
-    );
+    // Pxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(P.xz[0])),
+    //     thrust::raw_pointer_cast(&(U.x[0])),
+    //     thrust::raw_pointer_cast(&(U.z[0])),
+    //     thrust::raw_pointer_cast(&(R.xz[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0]))
+    // );
 
-    // Let each kernels finising their tasks
+    // // Let each kernels finising their tasks
     // cudaDeviceSynchronize();
 
-    Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.x[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
+    // Rxx<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(R.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    // );
 
-    Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.y[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
+    // Ryy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(R.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    // );
 
-    Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.z[0])),
-        thrust::raw_pointer_cast(&(dU.x[0])),
-        thrust::raw_pointer_cast(&(dU.y[0])),
-        thrust::raw_pointer_cast(&(dU.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
+    // Rzz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(R.z[0])),
+    //     thrust::raw_pointer_cast(&(dU.x[0])),
+    //     thrust::raw_pointer_cast(&(dU.y[0])),
+    //     thrust::raw_pointer_cast(&(dU.z[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.eta_tau_p[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    // );
 
-    Rxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.xy[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
+    // Rxy<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(R.xy[0])),
+    //     thrust::raw_pointer_cast(&(U.x[0])),
+    //     thrust::raw_pointer_cast(&(U.y[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    // );
 
-    Ryz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.yz[0])),
-        thrust::raw_pointer_cast(&(U.y[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
+    // Ryz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(R.yz[0])),
+    //     thrust::raw_pointer_cast(&(U.y[0])),
+    //     thrust::raw_pointer_cast(&(U.z[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    // );
 
-    Rxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
-        m_dt,
-        thrust::raw_pointer_cast(&(R.xz[0])),
-        thrust::raw_pointer_cast(&(U.x[0])),
-        thrust::raw_pointer_cast(&(U.z[0])),
-        thrust::raw_pointer_cast(&(m_M[0])),
-        thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
-        thrust::raw_pointer_cast(&(m_tau_sigma[0]))
-    );
+    // Rxz<x, y, z><<<GridDimension, ThreadPerBlock>>>(
+    //     m_dt,
+    //     thrust::raw_pointer_cast(&(R.xz[0])),
+    //     thrust::raw_pointer_cast(&(U.x[0])),
+    //     thrust::raw_pointer_cast(&(U.z[0])),
+    //     thrust::raw_pointer_cast(&(m_M[0])),
+    //     thrust::raw_pointer_cast(&(m_device_materials.mu_tau_s[0])),
+    //     thrust::raw_pointer_cast(&(m_tau_sigma[0]))
+    // );
 
-    // Let each kernels finising their tasks
+    // // Let each kernels finising their tasks
     // cudaDeviceSynchronize();
 
-    // Finishing P update
+    // // Finishing P update
     // auto func = saxpy_functor(- m_dt * 0.5);
     // thrust::transform(R.x.begin(), R.x.end(), P.x.begin(), P.x.begin(), func);
     // thrust::transform(R.y.begin(), R.y.end(), P.y.begin(), P.y.begin(), func);
@@ -386,7 +394,7 @@ void Scene<x, y, z, N, T>::Step() {
 
     // cudaDeviceSynchronize();
 
-    /// Applying Absorbing Boundary Condition
+    // // Applying Absorbing Boundary Condition
     // thrust::transform(U.x.begin(), U.x.end(), B.begin(), U.x.begin(), thrust::multiplies<float>());
     // thrust::transform(U.y.begin(), U.y.end(), B.begin(), U.y.begin(), thrust::multiplies<float>());
     // thrust::transform(U.z.begin(), U.z.end(), B.begin(), U.z.begin(), thrust::multiplies<float>());
@@ -405,26 +413,30 @@ void Scene<x, y, z, N, T>::Step() {
 
     // cudaDeviceSynchronize();
 
+    static_cast<solver*>(this)->Step();
+
     m_i += 1;
 };
 
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-void Scene<x, y, z, N, T>::AddMaterial(Material m) {
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+void Scene<x, y, z, N, T, solver>::AddMaterial(Material m) {
     m_materials.push_back(m);
 }
 
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-void Scene<x, y, z, N, T>::PrintMaterials() const {
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+void Scene<x, y, z, N, T, solver>::PrintMaterials() const {
     std::cout << "Materials : ";
     for (auto const &m : m_materials)
         std::cout << m << " ";
 }
 
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-void Scene<x, y, z, N, T>::SetScene(thrust::device_vector<unsigned int> &M) {
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+void Scene<x, y, z, N, T, solver>::SetScene(thrust::device_vector<unsigned int> &M) {
     // Checking scene size
-    if (M.size() != m_d.x * m_d.y * m_d.z)
+    if (M.size() != x*y*z) {
+        std::cout << x*y*z << " " << M.size() << std::endl;
         throw std::invalid_argument("Scene vector size does not match the Scene dimensions !");
+    }
 
     // Checking undefined material
     // unsigned int n = m_materials.size();
@@ -435,8 +447,8 @@ void Scene<x, y, z, N, T>::SetScene(thrust::device_vector<unsigned int> &M) {
     m_M = M;
 }
 
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-void Scene<x, y, z, N, T>::TriggerNextEvent() {
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+void Scene<x, y, z, N, T, solver>::TriggerNextEvent() {
     Event e = m_events.top();
     if (m_i < e.i())
         throw std::invalid_argument("Scene time is prior to the time of the next Event !");
@@ -448,8 +460,8 @@ void Scene<x, y, z, N, T>::TriggerNextEvent() {
     m_events.pop();
 }
 
-template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T>
-void Scene<x, y, z, N, T>::Init() {
+template<unsigned int x, unsigned int y, unsigned int z, unsigned int N, typename T, typename solver>
+void Scene<x, y, z, N, T, solver>::Init() {
     m_alpha[0] = 1.f / (24.f * m_dx.x);
     m_alpha[1] = 1.f / (24.f * m_dx.y);
     m_alpha[2] = 1.f / (24.f * m_dx.z);
@@ -457,6 +469,9 @@ void Scene<x, y, z, N, T>::Init() {
     /// Allocating DeviceMaterial
     FrequencyDomain fd = m_frequency_domain;
     for (const auto &m : m_materials) {
+        DeviceMaterial<float> dm = m.GetDeviceMaterial<float>(fd);
+        std::cout << m << std::endl;
+        std::cout << dm << std::endl;
         m_device_materials.push_back(m.GetDeviceMaterial<float>(fd));
     }
 

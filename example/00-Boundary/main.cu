@@ -2,6 +2,7 @@
 
 #include "core/kernels.cuh"
 #include "core/export.cuh"
+#include "core/Solver_Reflection.cuh"
 
 #include <thrust/device_vector.h>
 
@@ -20,7 +21,7 @@ int main(void) {
     float zeta_min = 0.95;
     float p = 2;
 
-    auto Op = Bound<x, y, z, N>(zeta_min, p);
+    auto Op = RBound<x, y, z, N>(zeta_min, p);
     thrust::counting_iterator<int> idxfirst(0);
     thrust::counting_iterator<int> idxlast = idxfirst + x*y*z;
     thrust::transform(idxfirst, idxlast, d_B.begin(), d_B.begin(), Op);

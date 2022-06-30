@@ -1,6 +1,3 @@
-from distutils.command.build import build
-import enum
-from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -14,7 +11,7 @@ if __name__ == "__main__":
     print(A.shape)
 
     fig, ax = plt.subplots()
-    data = ax.imshow(np.sum(A[:, :, 25], axis=2), aspect="equal", cmap="jet", vmin=m, vmax=M)
+    data = ax.imshow(np.sum(A[:, :, :], axis=2), aspect="equal", cmap="jet", vmin=m, vmax=M)
     fig.colorbar(data, extend='both')
     # plt.show()
 
