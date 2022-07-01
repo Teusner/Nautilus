@@ -39,6 +39,14 @@ set(MAIN_SOURCES src/main.cpp)
 ## Specify a name for the generated executable file
 set(MAIN_EXE_NAME Nautilus)
 
+################################################################################
+# Looking for CXXOPTS
+################################################################################
+add_subdirectory(extern/cxxopts)
+
+################################################################################
+# Looking for xtensor
+################################################################################
 find_package(xtensor REQUIRED)
 
 ## 1. Compile...
