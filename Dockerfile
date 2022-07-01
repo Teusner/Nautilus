@@ -23,7 +23,7 @@ RUN git clone https://github.com/xtensor-stack/xtensor/ -b master --single-branc
     && mkdir build && cd build && cmake .. -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 && make -j8 && make install
 
 # WakeBoat
-RUN mkdir -p /Nautilus/build
+RUN mkdir -p /Nautilus/build && mkdir -p /output
 COPY cuda /Nautilus/cuda
 COPY example /Nautilus/example
 COPY extern /Nautilus/extern
@@ -36,4 +36,4 @@ ENV CUDAToolkit_ROOT="/usr/local/cuda-11.2"
 
 RUN cd /Nautilus/build && cmake .. -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_CUDA_COMPILER=/usr/bin/clang++-12 && make -j8
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/Nautilus/build/example/01-Irenes_Antenna/00-Irene", "--path", "/output/Pressure.npy"]
