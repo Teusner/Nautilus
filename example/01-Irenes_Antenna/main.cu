@@ -45,9 +45,9 @@ int main(int argc, char *argv[]) {
     constexpr unsigned int y = 1;
     constexpr unsigned int z = 1;
 
-    constexpr float dx = 0.001;
-    constexpr float dy = 0.001;
-    constexpr float dz = 0.001;
+    constexpr float dx = 0.002;
+    constexpr float dy = 0.002;
+    constexpr float dz = 0.002;
 
     constexpr unsigned int N = 20;
 
